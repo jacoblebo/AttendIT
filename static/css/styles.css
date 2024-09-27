@@ -2,4 +2,33 @@
 
 nav{
     background-color: #005035;
+    color: white;
+}
+
+footer {
+    background-color: #005035;
+    color: white; 
+    text-align: center;
+    padding: 10px;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+.nav-link {
+    color: white !important;
+}
+
+.navbar .nav-link:hover {
+    color: #ddd !important; 
+}
+
+footer {
+    background-color: #005035;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
 }
