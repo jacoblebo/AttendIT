@@ -13,10 +13,10 @@ After successful completion of the app, the task of taking attendance would beco
   - python -m install flask
   - python -m flask run
 
-#### Usage Details
+### Usage Details
   - User can login  with mobile device or desktop to confirm attendance
   - Instructor can automatically compile attendance
 
-##### Team Progress
+### Team Progress
   - Created Wireframe
   - Set Up Flask Web Application
