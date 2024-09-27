@@ -3,19 +3,12 @@ from controllers import main_controller, auth_controller
 
 app = Flask(__name__)
 
-
-# @app.route("/")
-# def home():
-#     return render_template('home.html')
-
-# @app.route("/login")
-# def login():
-#     return render_template('login.html')
-
+# Home Route
 @app.route('/')
 def home():
     return render_template('home.html')
 
+# Login Route
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':

@@ -4,7 +4,14 @@
         <title></title>
     </head>
     <body>
-        <h1>Home Page</h1>
-        <a href="/login">Login</a>
+        {% extends 'layout.html' %}
+
+        {% block title %}
+        Home
+        {% endblock %}
+
+        {% block content %}
+        <h1>Welcome to the Attend IT!</h1>
+        {% endblock %}
     </body>
 </html>
