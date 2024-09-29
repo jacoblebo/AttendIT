@@ -32,3 +32,40 @@ footer {
     bottom: 0;
     width: 100%;
 }
+/* card style */
+.card_style {
+    border-radius: 1rem;
+    background-color: antiquewhite;
+    width: 20rem;
+    height: 5rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;    /* Vertically centers the content */
+    justify-content: center; /* Horizontally centers the content */
+    margin: 1rem;
+}
+
+.card_style p {
+    margin: 0; /* Remove default margin from p */
+}
+
+
+.card_course_status_style{
+    border-radius: 1rem;
+    background-color: antiquewhite;
+    width: 15rem;
+    height: 25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;    /* Vertically centers the content */
+    justify-content: left; /* Horizontally centers the content */
+    margin: 1rem;
+
+}
+.card_course_style p {
+    margin: 0; /* Remove default margin from p */
+}
+.card_course_status_style button {
+    height: 3rem;
+    border-radius: 1rem;
+}
