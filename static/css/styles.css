@@ -1,13 +1,12 @@
-/* This line is for testing purposes */
-
-nav{
+/* General styling for navigation and footer */
+nav {
     background-color: #005035;
     color: white;
 }
 
 footer {
     background-color: #005035;
-    color: white; 
+    color: white;
     text-align: center;
     padding: 10px;
     position: relative;
@@ -20,7 +19,7 @@ footer {
 }
 
 .navbar .nav-link:hover {
-    color: #ddd !important; 
+    color: #ddd !important;
 }
 
 footer {
@@ -32,40 +31,84 @@ footer {
     bottom: 0;
     width: 100%;
 }
-/* card style */
-.card_style {
-    border-radius: 1rem;
-    background-color: antiquewhite;
-    width: 20rem;
-    height: 5rem;
+
+/* Horizontal content alignment */
+.horizontal_main_content {
     display: flex;
     flex-direction: row;
-    align-items: center;    /* Vertically centers the content */
-    justify-content: center; /* Horizontally centers the content */
+    align-items: left;
+    justify-content: center;
+}
+
+/* Card container styles */
+.vertical_cards {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Style for general cards */
+.card_style {
+    border-radius: 0.75rem;
+    background-color: #F5F5F5; 
+    width: 22rem;
+    height: 6rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
     margin: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    transition: transform 0.2s, box-shadow 0.2s; 
+}
+
+.card_style:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); 
 }
 
 .card_style p {
-    margin: 0; /* Remove default margin from p */
+    margin: 0; 
+    color: #333; 
 }
 
-
-.card_course_status_style{
-    border-radius: 1rem;
-    background-color: antiquewhite;
-    width: 15rem;
-    height: 25rem;
+/* Style for course status cards */
+.card_course_status_style {
+    border-radius: 0.75rem;
+    background-color: #F5F5F5;
+    width: 18rem;
+    height: 26rem;
     display: flex;
     flex-direction: column;
-    align-items: center;    /* Vertically centers the content */
-    justify-content: left; /* Horizontally centers the content */
+    align-items: center;
+    justify-content: flex-start;
     margin: 1rem;
+    gap: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
 
+.card_course_status_style:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
-.card_course_style p {
-    margin: 0; /* Remove default margin from p */
+
+.card_course_status_style p {
+    color: #333;
 }
+
 .card_course_status_style button {
     height: 3rem;
-    border-radius: 1rem;
+    width: 80%; 
+    border-radius: 0.75rem;
+    background-color: #005035;
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.card_course_status_style button:hover {
+    background-color: #004026; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); 
 }
