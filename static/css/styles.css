@@ -1,4 +1,11 @@
-/* General styling for navigation and footer */
+/* General styling*/
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
 nav {
     background-color: #005035;
     color: white;
@@ -18,9 +25,24 @@ footer {
     color: white !important;
 }
 
-.navbar .nav-link:hover {
-    color: #ddd !important;
+.navbar {
+    background-color: #005035; 
 }
+
+.navbar .nav-link {
+    color: #ffffff !important; 
+}
+
+.navbar .nav-link:hover {
+    color: #dddddd !important; 
+}
+
+.navbar-brand {
+    color: #ffffff !important; 
+    font-weight: bold;
+}
+
+
 
 footer {
     background-color: #005035;
@@ -38,12 +60,16 @@ footer {
     flex-direction: row;
     align-items: left;
     justify-content: center;
+    gap: 4rem;
+    padding-top: 3rem;
 }
 
 /* Card container styles */
 .vertical_cards {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: left;
 }
 
 /* Style for general cards */
@@ -111,4 +137,48 @@ footer {
 .card_course_status_style button:hover {
     background-color: #004026; 
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); 
+}
+
+
+/* Style for blur */
+#blurOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(1px); 
+    background-color: rgba(0, 0, 0, 0.08); 
+    z-index: 500; 
+}
+
+/* Popover styling */
+#popoverCard {
+    display: none;
+    position: absolute;
+    top: 10rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000; 
+    background-color: #F5F5F5;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 18rem;
+}
+
+#popoverCard button {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: #005035;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+}
+
+
+.vertical_cards {
+    transition: filter 0.3s ease; 
 }
