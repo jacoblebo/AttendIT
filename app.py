@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 from controllers import main_controller, auth_controller
 
 app = Flask(__name__)
@@ -8,8 +8,7 @@ app = Flask(__name__)
 def home():
     return render_template('home.html')
 
-# Login Route
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
@@ -17,9 +16,9 @@ def login():
         
         print(f"Username: {username}")
         print(f"Password: {password}")
-        
-    
-    return render_template('login.html')
+        return redirect('/')
+    else: 
+        return render_template('login.html')
 
 
 
