@@ -21,5 +21,3 @@ After successful completion of the app, the task of taking attendance would beco
   - Created Wireframe
   - Set Up Flask Web Application
 
-
-Test change
