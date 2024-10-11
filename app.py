@@ -20,6 +20,9 @@ def login():
     else: 
         return render_template('login.html')
 
+@app.route('/error', methods=['GET'])
+def error():
+    return render_template('error.html')
 
 
 if __name__ == "__main__":
