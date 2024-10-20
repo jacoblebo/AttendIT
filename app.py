@@ -3,6 +3,7 @@ from controllers import main_controller, auth_controller
 
 app = Flask(__name__)
 
+
 # Home Route
 @app.route('/')
 def home():
@@ -10,18 +11,18 @@ def home():
     # else, display login page
     return render_template('home.html')
 
+
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        
+
         print(f"Username: {username}")
         print(f"Password: {password}")
         return redirect('/')
-    else: 
+    else:
         return render_template('login.html')
-
 
 
 if __name__ == "__main__":
