@@ -58,7 +58,7 @@ footer {
 .horizontal_main_content {
     display: flex;
     flex-direction: row;
-    align-items: left;
+    align-items: center;
     justify-content: center;
     gap: 4rem;
     padding-top: 3rem;
@@ -107,7 +107,7 @@ footer {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     margin: 1rem;
     gap: 1rem;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -126,6 +126,8 @@ footer {
 .card_course_status_style button {
     height: 3rem;
     width: 80%; 
+    align-items: center;
+    justify-content: center;
     border-radius: 0.75rem;
     background-color: #005035;
     color: white;
