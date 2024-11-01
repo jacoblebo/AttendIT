@@ -6,14 +6,14 @@ app = Flask(__name__)
 
 # Home Route
 @app.route('/')
-def home():
+def login():
     # If the user is logged in, display dashboard
     # else, display login page
-    return render_template('home.html')
+    return render_template('login.html')
 
 
-@app.route('/login', methods=['POST', 'GET'])
-def login():
+@app.route('/student_dashboard', methods=['POST', 'GET'])
+def student_dashboard():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -22,7 +22,7 @@ def login():
         print(f"Password: {password}")
         return redirect('/')
     else:
-        return render_template('login.html')
+        return render_template('student_dashboard.html')
 
 
 if __name__ == "__main__":
