@@ -1,8 +1,11 @@
 from flask import Flask, render_template, request, redirect, session
 from controllers import main_controller, auth_controller
+import bcrypt
+import os
 
 app = Flask(__name__)
 
+app.secret_key = os.getenv('SECRET_KEY')
 
 # Home Route
 @app.route('/', methods=['POST', 'GET'])
