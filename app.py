@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 
 # Configure the database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/users.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///AttendIT.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
@@ -21,6 +21,7 @@ class User(db.Model):
     lastName = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     role = db.Column(db.Integer, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
 
 class Attendance(db.Model):
     __tablename__ = 'Attendance'
@@ -54,42 +55,46 @@ class Session(db.Model):
 
 db.init_app(app)
 
-# Home/Login Route
-@app.route('/', methods=['POST', 'GET'])
-def login():
+with app.app_context():
+    db.drop_all()
+    db.create_all()
+
+@app.route('/', methods=['GET'])
+def index():
     # Check if already logged in
     if 'user' in session:
+        if session['user']['role'] == 0:  # Use session to access role
+            return redirect('/student_dashboard')
+        elif session['user']['role'] == 1:
+            return redirect('/instructor_dashboard')
+    else:
+        return render_template('index.html')
+
+@app.route('/login', methods=['POST'])
+def login():
+    email = request.form.get('email')
+    password = request.form.get('password')  # Get the plaintext password
+
+    # Fetch user by email
+    user = User.query.filter_by(email=email).first()
+    if user and password == user.password:  # Compare plaintext password directly
+        # Set user info in session
+        session['user'] = {
+            'firstName': user.firstName,
+            'lastName': user.lastName,
+            'email': user.email,
+            'role': user.role
+        }
+        # Redirect based on user role
         if session['user']['role'] == 0:
             return redirect('/student_dashboard')
         elif session['user']['role'] == 1:
             return redirect('/instructor_dashboard')
 
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password'].encode('utf-8')
+    # Authentication failed
+    flash('Invalid email or password', 'error')
+    return redirect(url_for('error'))
 
-        # Authenticate user
-        users = User.query.all()
-        user = users.get(email)
-        if user and bcrypt.checkpw(password, user['password']):
-            # Set user info in session
-            session['user'] = {
-                'firstName': user['firstName'],
-                'lastName': user['lastName'],
-                'email': user['email'],
-                'role': user['role']
-            }
-            # Redirect based on role
-            if user['role'] == 0:
-                return redirect('/student_dashboard')
-            elif user['role'] == 1:
-                return redirect('/instructor_dashboard')
-        else:
-            # Authentication failed, redirect to error page
-            flash('Invalid email or password', 'error')
-            return redirect(url_for('error'))
-
-    return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -98,7 +103,7 @@ def register():
         last_name = request.form['lastName']
         email = request.form['email']
         password = request.form['password']
-        role = request.form.get('role', type=int)
+        role = 0
 
         # Validate email domain
         if not re.match(r'^[\w\.-]+@(charlotte\.edu|uncc\.edu)$', email):
@@ -111,15 +116,12 @@ def register():
             flash('Email already in use', 'error')
             return redirect(url_for('register'))
 
-        # Hash the password
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-
-        # Create new user
+        # Create new user without hashing the password
         new_user = User(
             firstName=first_name,
             lastName=last_name,
             email=email,
-            password=hashed_password,
+            password=password,  # Store plaintext password (not recommended for production)
             role=role
         )
 
@@ -128,19 +130,18 @@ def register():
         db.session.commit()
 
         flash('Registration successful', 'success')
-        return redirect(url_for('login'))
-
+        return redirect(url_for('index'))
     return render_template('register.html')
 
 # Student Dashboard
-@app.route('/student_dashboard', methods=['POST', 'GET'])
+@app.route('/student_dashboard', methods=['GET'])
 def student_dashboard():
     if 'user' not in session or session['user']['role'] != 0:
         return redirect(url_for('login'))
     return render_template('student_dashboard.html', user=session['user'])
 
 # Instructor Dashboard
-@app.route('/instructor_dashboard', methods=['POST', 'GET'])
+@app.route('/instructor_dashboard', methods=['GET'])
 def instructor_dashboard():
     if 'user' not in session or session['user']['role'] != 1:
         return redirect(url_for('login'))
