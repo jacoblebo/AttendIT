@@ -27,7 +27,7 @@ def student_dashboard():
 
 @app.route('/instructor_dashboard', methods=['POST', 'GET'])
 def instructor_dashboard():
-    return render_template('intructor_dashboard.html')
+    return render_template('instructor_dashboard.html')
 
 
 if __name__ == "__main__":
