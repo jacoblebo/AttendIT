@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session, flash, url
 from models import db, User, Attendance, Class, Enrollment, Session
 import bcrypt
 import os
+import re # we love regex
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
@@ -55,7 +56,12 @@ def register():
         last_name = request.form['lastName']
         email = request.form['email']
         password = request.form['password']
-        role = 0 # Default role is student, professor has to be set by a DBA
+        role = request.form.get('role', type=int)
+
+        # Validate email domain
+        if not re.match(r'^[\w\.-]+@(charlotte\.edu|uncc\.edu)$', email):
+            flash('Email must be from @charlotte.edu or @uncc.edu domains', 'error')
+            return redirect(url_for('register'))
 
         # Check if the email is already in use
         existing_user = User.query.filter_by(email=email).first()
