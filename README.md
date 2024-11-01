@@ -20,3 +20,4 @@ After successful completion of the app, the task of taking attendance would beco
 ### Team Progress
   - Created Wireframe
   - Set Up Flask Web Application
+
