@@ -89,7 +89,7 @@ def login():
             flash('Invalid email or password', 'error')
             return redirect(url_for('error'))
 
-    return render_template('login.html')
+    return render_template('/instructor_dashboard.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
