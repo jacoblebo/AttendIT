@@ -1,12 +1,20 @@
 <!-- /templates/instructor_dashboard.html -->
 {% extends 'layout.html' %}
-
 {% block content %}
-    <h1>Instructor View</h1>
+    <h1>Welcome to Attend IT!</h1>
+    <p>Here are the courses you are teaching:</p>
     <div class="horizontal_main_content">
-    {% include 'instructor_card_course.html' %}
-    {% include 'instructor_card_csv_downloads.html' %}
+        {% for course in courses %}
+            <div class="card_style course-card" data-course-id="{{ course.id }}">
+                <p>{{ course.name }}</p>
+            </div>
+        {% endfor %}
     </div>
-    {% include 'instructor_card_popover.html' %}
-    
+    <button type="button" id="create-course-btn">Create Course</button>
+    {% include 'modals/create_course_modal.html' %}
+    {% include 'modals/course_info_modal.html' %}
+    {% include 'modals/create_session_modal.html' %}
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
 {% endblock %}

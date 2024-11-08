@@ -163,3 +163,4 @@ cython_debug/
 
 .env
 AttendIT.db
+pytest.ini
