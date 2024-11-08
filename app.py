@@ -124,7 +124,6 @@ def login():
             elif user.role == 1:
                 return redirect(url_for('instructor_dashboard'))
         else:
-jl_server
             flash('Incorrect password', 'error')
             return redirect(url_for('login'))
     else:
