@@ -20,6 +20,38 @@ function toggleForms() {
     }
 }
 
+function handleImHereFormSubmit(event) {
+    event.preventDefault();
+    let courseId = document.getElementById('course-id').value;
+    let bypassCode = document.getElementById('bypass-code').value;
+    fetch(`/mark_attendance/${courseId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
+        },
+        body: JSON.stringify({
+            bypass_code: bypassCode
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Attendance marked successfully');
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => console.error('Error marking attendance:', error));
+}
+
+function setupImHereForm() {
+    let imHereForm = document.getElementById('im-here-form');
+    if (imHereForm) {
+        imHereForm.addEventListener('submit', handleImHereFormSubmit);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM fully loaded and parsed'); // Log when DOM is loaded
 
@@ -98,14 +130,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupCourseInfoModal() {
         document.querySelectorAll('.course-card').forEach(card => {
             card.addEventListener('click', function() {
+                document.querySelectorAll('.course-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
                 let courseId = this.getAttribute('data-course-id');
-                let userRole = document.getElementById('user-role').value; // Assuming you have a hidden input or some element with the user's role
+                let userRole = document.getElementById('user-role').value;
     
                 if (userRole == 1) { // 1 for professor
                     fetch(`/course_info/${courseId}`)
                         .then(response => response.json())
                         .then(data => {
-                            // Update the modal content
                             document.getElementById('course-name').textContent = `Course Name: ${data.name}`;
                             document.getElementById('course-join-code').textContent = `Join Code: ${data.join_code}`;
                             document.getElementById('course-enrollment').textContent = `Enrollment: ${data.enrollment}`;
@@ -122,10 +155,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     fetch(`/student_course_info/${courseId}`)
                         .then(response => response.json())
                         .then(data => {
-                            // Update the modal content
                             document.getElementById('student-course-name').textContent = `Course Name: ${data.name}`;
                             document.getElementById('next-session-info').textContent = `Next Session: ${data.next_session}`;
-                            document.getElementById('im-here-btn').setAttribute('data-course-id', courseId);
+                            document.getElementById('course-id').value = courseId;
                             document.getElementById('student-course-info-modal').style.display = 'block';
                         })
                         .catch(error => console.error('Error fetching course info:', error));
@@ -152,6 +184,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
     }
+    
+    
 
     function setupCreateSessionModal() {
         let openCreateSessionModalBtn = document.getElementById('open-create-session-modal-btn');
@@ -172,7 +206,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     
         openCreateSessionModalBtn.onclick = function() {
-            console.log('open-create-session-modal-btn button clicked'); // Print to console
+            let courseId = document.querySelector('.course-card.selected').getAttribute('data-course-id');
+            document.getElementById('course-id').value = courseId;
             createSessionModal.style.display = 'block';
         };
     
@@ -186,40 +221,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
     }
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        setupCreateSessionModal();
-    });
-
-    function setupImHereButton() {
-        let imHereBtn = document.getElementById('im-here-btn');
-        if (imHereBtn) {
-            imHereBtn.addEventListener('click', function() {
-                let courseId = this.getAttribute('data-course-id');
-                let bypassCode = document.getElementById('bypass-code').value;
-                fetch(`/mark_attendance/${courseId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
-                    },
-                    body: JSON.stringify({
-                        bypass_code: bypassCode
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Attendance marked successfully');
-                    } else {
-                        alert(data.message);
-                    }
-                })
-                .catch(error => console.error('Error marking attendance:', error));
-            });
-        }
-    }
-
     function setupDownloadAttendanceButton() {
         let downloadAttendanceBtn = document.getElementById('download-attendance-btn');
         if (downloadAttendanceBtn) {
@@ -230,12 +231,36 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function setupStudentCourseInfoModal() {
+        let studentCourseInfoModal = document.getElementById('student-course-info-modal');
+        let closeBtn = studentCourseInfoModal ? studentCourseInfoModal.getElementsByClassName('close')[0] : null;
+    
+        if (!studentCourseInfoModal) {
+            console.error('Modal with id student-course-info-modal not found');
+            return;
+        }
+        if (!closeBtn) {
+            console.error('Close button not found in modal with id student-course-info-modal');
+            return;
+        }
+    
+        closeBtn.onclick = function() {
+            studentCourseInfoModal.style.display = 'none';
+        };
+    
+        window.onclick = function(event) {
+            if (event.target === studentCourseInfoModal) {
+                studentCourseInfoModal.style.display = 'none';
+            }
+        };
+    }
+
     // Call the functions to set up the modals and buttons
     setupCreateCourseModal();
     setupEnrollCourseModal();
     setupCourseInfoModal();
-    setupStudentCourseInfoModal();
     setupCreateSessionModal();
-    setupImHereButton();
+    setupStudentCourseInfoModal();
+    setupImHereForm();
     setupDownloadAttendanceButton();
 });

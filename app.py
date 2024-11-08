@@ -263,12 +263,17 @@ def create_course():
 
 @app.route('/course_info/<int:course_id>', methods=['GET'])
 def course_info(course_id):
+    print(f"Fetching course info for course_id: {course_id}")
     course = Class.query.get(course_id)
     if not course:
         return jsonify({'error': 'Course not found'}), 404
 
     enrollment_count = Enrollment.query.filter_by(class_id=course_id).count()
+    print(f"Enrollment count for course_id {course_id}: {enrollment_count}")
+
     next_session = Session.query.filter_by(class_id=course_id).order_by(Session.session_start_date).first()
+    print(f"Next session for course_id {course_id}: {next_session}")
+
     next_session_info = {
         'start_date': next_session.session_start_date,
         'end_date': next_session.session_end_date,
@@ -287,26 +292,27 @@ def course_info(course_id):
 def create_session():
     if 'user' not in session or session['user']['role'] != 1:
         return jsonify({'success': False, 'message': 'Unauthorized'})
-
-    data = request.get_json()
-    class_id = data['class_id']
-    session_start_date = data['session_start_date']
-    session_start_time = data['session_start_time']
-    session_end_time = data['session_end_time']
+    
+    class_id = request.form['course_id']
+    session_start_date = request.form['session_start_date']
+    session_start_time = request.form['session_start_time']
+    session_end_time = request.form['session_end_time']
     bypass_code = generate_join_code()
-
     session_start_datetime = datetime.strptime(f"{session_start_date} {session_start_time}", "%m/%d/%Y %I:%M %p").strftime("%Y-%m-%d %H:%M:%S")
     session_end_datetime = datetime.strptime(f"{session_start_date} {session_end_time}", "%m/%d/%Y %I:%M %p").strftime("%Y-%m-%d %H:%M:%S")
-
     new_session = Session(
         class_id=class_id,
         session_start_date=session_start_datetime,
         session_end_date=session_end_datetime,
         bypass_code=bypass_code
     )
+    
+    # Print session information
+    print(f"New session: class_id={new_session.class_id}, session_start_date={new_session.session_start_date}, session_end_date={new_session.session_end_date}, bypass_code={new_session.bypass_code}")
+    
     db.session.add(new_session)
     db.session.commit()
-    return jsonify({'success': True, 'message': 'Session created successfully'})
+    return redirect(url_for('instructor_dashboard'))
 
 @app.route('/enroll_course', methods=['POST'])
 def enroll_course():
