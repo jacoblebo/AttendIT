@@ -156,9 +156,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupCreateSessionModal() {
         let openCreateSessionModalBtn = document.getElementById('open-create-session-modal-btn');
         let createSessionModal = document.getElementById('create-session-modal');
-        let createSessionForm = document.getElementById('create-session-form');
         let span = createSessionModal ? createSessionModal.getElementsByClassName('close')[0] : null;
-
+    
         if (!createSessionModal) {
             console.error('Modal with id create-session-modal not found');
             return;
@@ -171,68 +170,26 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Close button not found in modal with id create-session-modal');
             return;
         }
-
+    
         openCreateSessionModalBtn.onclick = function() {
             console.log('open-create-session-modal-btn button clicked'); // Print to console
             createSessionModal.style.display = 'block';
         };
-
+    
         span.onclick = function() {
             createSessionModal.style.display = 'none';
         };
-
+    
         window.onclick = function(event) {
             if (event.target === createSessionModal) {
                 createSessionModal.style.display = 'none';
             }
         };
-
-        createSessionForm.onsubmit = function(event) {
-            event.preventDefault();
-            let courseId = document.getElementById('course-info-modal').getAttribute('data-course-id');
-            let sessionStartDate = document.getElementById('session-start-date').value;
-            let sessionStartTime = document.getElementById('session-start-time').value;
-            let sessionEndTime = document.getElementById('session-end-time').value;
-
-            fetch('/create_session', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
-                },
-                body: JSON.stringify({
-                    class_id: courseId,
-                    session_start_date: sessionStartDate,
-                    session_start_time: sessionStartTime,
-                    session_end_time: sessionEndTime
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Session created successfully');
-                    createSessionModal.style.display = 'none';
-                    // Refresh the course info modal to show the new session
-                    fetch(`/course_info/${courseId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            document.getElementById('course-name').textContent = `Course Name: ${data.name}`;
-                            document.getElementById('course-join-code').textContent = `Join Code: ${data.join_code}`;
-                            document.getElementById('course-enrollment').textContent = `Enrollment: ${data.enrollment}`;
-                            if (data.next_session) {
-                                document.getElementById('next-session-info').textContent = `Next Session: ${data.next_session.start_date} to ${data.next_session.end_date}, Bypass Code: ${data.next_session.bypass_code}`;
-                            } else {
-                                document.getElementById('next-session-info').textContent = 'No upcoming sessions';
-                            }
-                        })
-                        .catch(error => console.error('Error fetching course info:', error));
-                } else {
-                    alert('Error creating session');
-                }
-            })
-            .catch(error => console.error('Error creating session:', error));
-        };
     }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        setupCreateSessionModal();
+    });
 
     function setupImHereButton() {
         let imHereBtn = document.getElementById('im-here-btn');
