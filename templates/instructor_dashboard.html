@@ -1,0 +1,12 @@
+<!-- /templates/instructor_dashboard.html -->
+{% extends 'layout.html' %}
+
+{% block content %}
+    <h1>Instructor View</h1>
+    <div class="horizontal_main_content">
+    {% include 'instructor_card_course.html' %}
+    {% include 'instructor_card_csv_downloads.html' %}
+    </div>
+    {% include 'instructor_card_popover.html' %}
+    
+{% endblock %}
