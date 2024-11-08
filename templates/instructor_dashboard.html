@@ -1,5 +1,5 @@
+<!-- /templates/instructor_dashboard.html -->
 {% extends 'layout.html' %}
-
 {% block content %}
     <h1>Welcome to Attend IT!</h1>
     <p>Here are the courses you are teaching:</p>
@@ -13,8 +13,8 @@
     <button type="button" id="create-course-btn">Create Course</button>
     {% include 'modals/create_course_modal.html' %}
     {% include 'modals/course_info_modal.html' %}
+    {% include 'modals/create_session_modal.html' %}
 {% endblock %}
-
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 {% endblock %}

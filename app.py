@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, flash, url_for, jsonify
+from flask import Flask, render_template, request, redirect, session, flash, url_for, jsonify, send_file
 from flask_sqlalchemy import SQLAlchemy
 import bcrypt
 import os
@@ -8,6 +8,7 @@ from datetime import datetime
 csrf = CSRFProtect()
 import random
 import string
+import csv
 
 
 app = Flask(__name__)
@@ -171,7 +172,37 @@ def register():
 def student_dashboard():
     if 'user' not in session or session['user']['role'] != 0:
         return redirect(url_for('login'))
-    return render_template('student_dashboard.html', user=session['user'])
+
+    student_id = session['user']['id']
+    enrollments = Enrollment.query.filter_by(student_id=student_id).all()
+    courses = [Class.query.get(enrollment.class_id) for enrollment in enrollments]
+
+    # Sort courses by the next session date, handling cases where no session exists
+    def get_next_session_start_date(course):
+        next_session = Session.query.filter_by(class_id=course.id).order_by(Session.session_start_date).first()
+        return next_session.session_start_date if next_session else "9999-12-31 23:59:59"
+
+    courses.sort(key=get_next_session_start_date)
+
+    return render_template('student_dashboard.html', user=session['user'], courses=courses)
+
+@app.route('/student_course_info/<int:course_id>', methods=['GET'])
+def student_course_info(course_id):
+    if 'user' not in session or session['user']['role'] != 0:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    course = Class.query.get(course_id)
+    if not course:
+        return jsonify({'error': 'Course not found'}), 404
+
+    next_session = Session.query.filter_by(class_id=course_id).order_by(Session.session_start_date).first()
+    next_session_info = f"{next_session.session_start_date} to {next_session.session_end_date}" if next_session else "No upcoming sessions"
+
+    course_info = {
+        'name': course.name,
+        'next_session': next_session_info
+    }
+    return jsonify(course_info)
 
 # Instructor Dashboard
 @app.route('/instructor_dashboard', methods=['GET'])
@@ -237,13 +268,99 @@ def course_info(course_id):
         return jsonify({'error': 'Course not found'}), 404
 
     enrollment_count = Enrollment.query.filter_by(class_id=course_id).count()
+    next_session = Session.query.filter_by(class_id=course_id).order_by(Session.session_start_date).first()
+    next_session_info = {
+        'start_date': next_session.session_start_date,
+        'end_date': next_session.session_end_date,
+        'bypass_code': next_session.bypass_code
+    } if next_session else None
 
     course_info = {
         'name': course.name,
         'join_code': course.join_code,
-        'enrollment': enrollment_count
+        'enrollment': enrollment_count,
+        'next_session': next_session_info
     }
     return jsonify(course_info)
+
+@app.route('/create_session', methods=['POST'])
+def create_session():
+    if 'user' not in session or session['user']['role'] != 1:
+        return jsonify({'success': False, 'message': 'Unauthorized'})
+
+    data = request.get_json()
+    class_id = data['class_id']
+    session_start_date = data['session_start_date']
+    session_start_time = data['session_start_time']
+    session_end_time = data['session_end_time']
+    bypass_code = generate_join_code()
+
+    session_start_datetime = datetime.strptime(f"{session_start_date} {session_start_time}", "%m/%d/%Y %I:%M %p").strftime("%Y-%m-%d %H:%M:%S")
+    session_end_datetime = datetime.strptime(f"{session_start_date} {session_end_time}", "%m/%d/%Y %I:%M %p").strftime("%Y-%m-%d %H:%M:%S")
+
+    new_session = Session(
+        class_id=class_id,
+        session_start_date=session_start_datetime,
+        session_end_date=session_end_datetime,
+        bypass_code=bypass_code
+    )
+    db.session.add(new_session)
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Session created successfully'})
+
+@app.route('/enroll_course', methods=['POST'])
+def enroll_course():
+    if 'user' not in session or session['user']['role'] != 0:
+        return redirect(url_for('login'))
+
+    join_code = request.form['join_code']
+    student_id = session['user']['id']
+
+    course = Class.query.filter_by(join_code=join_code).first()
+    if not course:
+        flash('Invalid join code', 'error')
+        return redirect(url_for('student_dashboard'))
+
+    existing_enrollment = Enrollment.query.filter_by(student_id=student_id, class_id=course.id).first()
+    if existing_enrollment:
+        flash('You are already enrolled in this course', 'error')
+        return redirect(url_for('student_dashboard'))
+
+    new_enrollment = Enrollment(student_id=student_id, class_id=course.id)
+    db.session.add(new_enrollment)
+    db.session.commit()
+    flash('Enrolled in course successfully', 'success')
+    return redirect(url_for('student_dashboard'))
+
+@app.route('/mark_attendance/<int:course_id>', methods=['POST'])
+def mark_attendance(course_id):
+    if 'user' not in session or session['user']['role'] != 0:
+        return jsonify({'success': False, 'message': 'Unauthorized'})
+
+    student_id = session['user']['id']
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    data = request.get_json()
+    bypass_code = data.get('bypass_code')
+
+    session_record = Session.query.filter_by(class_id=course_id).filter(
+        Session.session_start_date <= current_time,
+        Session.session_end_date >= current_time
+    ).first()
+
+    if not session_record:
+        return jsonify({'success': False, 'message': "That class isn't happening right now"})
+
+    if session_record.bypass_code != bypass_code:
+        return jsonify({'success': False, 'message': 'Invalid bypass code'})
+
+    existing_attendance = Attendance.query.filter_by(student_id=student_id, session_id=session_record.id).first()
+    if existing_attendance:
+        return jsonify({'success': False, 'message': 'Attendance already marked'})
+
+    new_attendance = Attendance(student_id=student_id, session_id=session_record.id, status=1)
+    db.session.add(new_attendance)
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Attendance marked successfully'})
 
 if __name__ == "__main__":
     app.run(debug=True)

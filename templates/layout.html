@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <!-- Header and Footer -->
+
 <head>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 
@@ -14,26 +15,26 @@
 </head>
 
 <body>
-  <header>
-    <nav class="navbar navbar-expand-lg">
-        <div class="container">
-            <a class="navbar-brand" href="#">AttendIT</a>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ml-auto">
-                    {% if 'user' in session %}
+    <header>
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a class="navbar-brand" href="#">AttendIT</a>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ml-auto">
+                        {% if 'user' in session %}
                         <li class="nav-item">
                             <a class="nav-link" href="/logout">Logout</a>
                         </li>
-                    {% endif %}
-                </ul>
+                        {% endif %}
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
-</header>
-
-
-
+        </nav>
+    </header>
     <main>
+        {% if 'user' in session %}
+        <input type="hidden" id="user-role" value="{{ session['user']['role'] }}">
+        {% endif %}
         {% block content %}{% endblock %}
     </main>
 
@@ -42,4 +43,5 @@
     </footer>
 
 </body>
+
 </html>
