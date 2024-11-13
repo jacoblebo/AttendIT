@@ -123,10 +123,9 @@ def login():
                 return redirect(url_for('student_dashboard'))
             elif user.role == 1:
                 return redirect(url_for('instructor_dashboard'))
-        else:
-jl_server
-            flash('Incorrect password', 'error')
-            return redirect(url_for('login'))
+            else:
+                flash('Incorrect password', 'error')
+                return redirect(url_for('login'))
     else:
         flash('Email not found', 'error')
         return redirect(url_for('login'))
