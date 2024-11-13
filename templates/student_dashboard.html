@@ -1,0 +1,21 @@
+<!-- /templates/student_dashboard.html -->
+{% extends 'layout.html' %}
+
+{% block content %}
+    <h1>Welcome to Attend IT!</h1>
+    <p>Here are the courses you are enrolled in:</p>
+    <div class="horizontal_main_content">
+        {% for course in courses %}
+            <div class="card_style course-card" data-course-id="{{ course.id }}">
+                <p>{{ course.name }}</p>
+            </div>
+        {% endfor %}
+    </div>
+    <button id="enroll-course-btn">Enroll in a Course</button>
+    {% include 'modals/enroll_course_modal.html' %}
+    {% include 'modals/student_course_info_modal.html' %}
+    {% include 'card_popover.html' %}
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% endblock %}
