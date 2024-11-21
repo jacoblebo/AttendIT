@@ -6,17 +6,20 @@ function toggleForms() {
     let registerForm = document.getElementById('register-form');
     let toggleLink = document.getElementById('toggle-link');
     let pageTitle = document.getElementById('page-title');
+    let dhac = document.getElementById('no_account_text');
 
     if (loginForm.style.display === 'none') {
         loginForm.style.display = 'block';
         registerForm.style.display = 'none';
         pageTitle.innerHTML = "Login";
         toggleLink.innerHTML = "Don't have an account? <button type='button' onclick='toggleForms()'>Register</button>";
+        
     } else {
         loginForm.style.display = 'none';
         registerForm.style.display = 'block';
         pageTitle.innerHTML = "Register";
         toggleLink.innerHTML = "Already have an account? <button type='button' onclick='toggleForms()'>Login</button>";
+        dhac.innerHTML = '';
     }
 }
 

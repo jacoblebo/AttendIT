@@ -2,11 +2,15 @@ import os
 import sys
 import pytest
 from flask import session
+from flask_wtf import CSRFProtect 
+csrf = CSRFProtect()
 
 # Add the directory containing app.py to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app import app, db, User, Class, Enrollment, Session, Attendance
+
+app.secret_key = os.getenv('SECRET_KEY')
 
 @pytest.fixture
 def client():
@@ -16,6 +20,7 @@ def client():
         with app.app_context():
             db.create_all()
             yield client
+
         db.drop_all()
 
 def test_index(client):

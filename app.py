@@ -297,8 +297,9 @@ def create_session():
     session_start_time = request.form['session_start_time']
     session_end_time = request.form['session_end_time']
     bypass_code = generate_join_code()
-    session_start_datetime = datetime.strptime(f"{session_start_date} {session_start_time}", "%m/%d/%Y %I:%M %p").strftime("%Y-%m-%d %H:%M:%S")
-    session_end_datetime = datetime.strptime(f"{session_start_date} {session_end_time}", "%m/%d/%Y %I:%M %p").strftime("%Y-%m-%d %H:%M:%S")
+    
+    session_start_datetime = datetime.strptime(f"{session_start_date} {session_start_time}", "%m-%d-%Y %I:%M %p").strftime("%Y-%m-%d %H:%M:%S")
+    session_end_datetime = datetime.strptime(f"{session_start_date} {session_end_time}", "%m-%d-%Y %I:%M %p").strftime("%Y-%m-%d %H:%M:%S")
     new_session = Session(
         class_id=class_id,
         session_start_date=session_start_datetime,
