@@ -8,8 +8,8 @@ from datetime import datetime
 csrf = CSRFProtect()
 import random
 import string
-import csv
-
+import pandas as pd
+import uuid
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
@@ -25,7 +25,7 @@ db = SQLAlchemy()
 
 class User(db.Model):
     __tablename__ = 'Users'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()))
     firstName = db.Column(db.String(50), nullable=False)
     lastName = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -34,31 +34,31 @@ class User(db.Model):
 
 class Attendance(db.Model):
     __tablename__ = 'Attendance'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()))
     session_id = db.Column(db.Integer, db.ForeignKey('Sessions.id'))
     student_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
     status = db.Column(db.Integer)
 
 class Class(db.Model):
     __tablename__ = 'Classes'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()))
     name = db.Column(db.String(100), nullable=False)
     professor_id = db.Column(db.Integer, nullable=False)
     join_code = db.Column(db.String(5), nullable=False, unique=True)
 
 class Enrollment(db.Model):
     __tablename__ = 'Enrollments'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()))
     student_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
     class_id = db.Column(db.Integer, db.ForeignKey('Classes.id'), nullable=False)
 
 class Session(db.Model):
     __tablename__ = 'Sessions'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()))
     class_id = db.Column(db.Integer, db.ForeignKey('Classes.id'))
     session_start_date = db.Column(db.String(50))
     session_end_date = db.Column(db.String(50))
-    bypass_code = db.Column(db.String(50))
+    bypass_code = db.Column(db.String(5))
 
 db.init_app(app)
 
@@ -71,6 +71,7 @@ with app.app_context():
         existing_admin = User.query.filter_by(email=admin_email).first()
         if not existing_admin:
             admin_user = User(
+            id=str(uuid.uuid4()),
             firstName='Admin',
             lastName='User',
             email=admin_email,
@@ -80,8 +81,31 @@ with app.app_context():
             db.session.add(admin_user)
             db.session.commit()
             print("Admin user created with email: ", admin_email)
+        test_student_email = 'test@uncc.edu'
+        test_student_password = '123'
+        existing_student = User.query.filter_by(email=test_student_email).first()
+        if not existing_student:
+            test_student = User(
+            id=str(uuid.uuid4()),
+            firstName='Test',
+            lastName='Student',
+            email=test_student_email,
+            password=bcrypt.hashpw(test_student_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
+            role=0  # Role 0 for student
+            )
+            db.session.add(test_student)
+            db.session.commit()
+            print("Test student created with email: ", test_student_email)
+        
     else:
         print("Database already exists")
+
+@app.before_request
+def method_override():
+    if request.method == 'POST' and '_method' in request.form:
+        method = request.form['_method'].upper()
+        if method in ['PUT', 'DELETE']:
+            request.environ['REQUEST_METHOD'] = method
 
 @app.route('/', methods=['GET'])
 def index():
@@ -152,12 +176,15 @@ def register():
 
         # Create new user without hashing the password
         new_user = User(
+            id=str(uuid.uuid4()),
             firstName=first_name,
             lastName=last_name,
             email=email,
             password= bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'), 
             role=role
         )
+
+        print(f"New user: {new_user}")
 
         # Add the user to the database
         db.session.add(new_user)
@@ -186,7 +213,7 @@ def student_dashboard():
 
     return render_template('student_dashboard.html', user=session['user'], courses=courses)
 
-@app.route('/student_course_info/<int:course_id>', methods=['GET'])
+@app.route('/student_course_info/<string:course_id>', methods=['GET'])
 def student_course_info(course_id):
     if 'user' not in session or session['user']['role'] != 0:
         return jsonify({'error': 'Unauthorized'}), 403
@@ -252,16 +279,18 @@ def create_course():
     join_code = generate_unique_join_code()
 
     new_course = Class(
+        id=str(uuid.uuid4()),
         name=course_name,
         professor_id=professor_id,
         join_code=join_code
     )
+    print(f"New course: name={new_course.name}, professor_id={new_course.professor_id}, join_code={new_course.join_code}")
     db.session.add(new_course)
     db.session.commit()
     flash('Course created successfully', 'success')
     return redirect(url_for('instructor_dashboard'))
 
-@app.route('/course_info/<int:course_id>', methods=['GET'])
+@app.route('/course_info/<string:course_id>', methods=['GET'])
 def course_info(course_id):
     print(f"Fetching course info for course_id: {course_id}")
     course = Class.query.get(course_id)
@@ -298,21 +327,89 @@ def create_session():
     session_start_time = request.form['session_start_time']
     session_end_time = request.form['session_end_time']
     bypass_code = generate_join_code()
-    session_start_datetime = datetime.strptime(f"{session_start_date} {session_start_time}", "%m/%d/%Y %I:%M %p").strftime("%Y-%m-%d %H:%M:%S")
-    session_end_datetime = datetime.strptime(f"{session_start_date} {session_end_time}", "%m/%d/%Y %I:%M %p").strftime("%Y-%m-%d %H:%M:%S")
+    
+    # Combine date and time strings and convert to datetime objects
+    session_start_datetime = datetime.strptime(f"{session_start_date} {session_start_time}", "%Y-%m-%d %H:%M")
+    session_end_datetime = datetime.strptime(f"{session_start_date} {session_end_time}", "%Y-%m-%d %H:%M")
+    
+    # Check if the session start date and time are in the future
+    if session_start_datetime <= datetime.now():
+        flash('Session start date and time must be in the future', 'error')
+        return redirect(url_for('instructor_dashboard'))
+    
+    # Check if the session end date and time are after the session start date and time
+    if session_end_datetime <= session_start_datetime:
+        flash('Session end date and time must be after the start date and time', 'error')
+        return redirect(url_for('instructor_dashboard'))
+    
+    print(f"Creating session for class_id={class_id}, session_start_date={session_start_datetime}, session_end_date={session_end_datetime}, bypass_code={bypass_code}")
+    
     new_session = Session(
+        id=str(uuid.uuid4()),
         class_id=class_id,
-        session_start_date=session_start_datetime,
-        session_end_date=session_end_datetime,
+        session_start_date=session_start_datetime.strftime("%Y-%m-%d %H:%M:%S"),
+        session_end_date=session_end_datetime.strftime("%Y-%m-%d %H:%M:%S"),
         bypass_code=bypass_code
     )
     
-    # Print session information
-    print(f"New session: class_id={new_session.class_id}, session_start_date={new_session.session_start_date}, session_end_date={new_session.session_end_date}, bypass_code={new_session.bypass_code}")
-    
     db.session.add(new_session)
     db.session.commit()
+    flash('Session created successfully', 'success')
     return redirect(url_for('instructor_dashboard'))
+
+@app.route('/download_attendance/<string:session_id>', methods=['GET'])
+def download_attendance(session_id):
+    if 'user' not in session or session['user']['role'] != 1:
+        return redirect(url_for('login'))
+
+    session_record = Session.query.get(session_id)
+    if not session_record:
+        flash('Session not found', 'error')
+        return redirect(url_for('instructor_dashboard'))
+
+    attendance_records = Attendance.query.filter_by(session_id=session_id).all()
+    attendance_data = [
+        {
+            'Student ID': record.student_id,
+            'Status': record.status
+        } for record in attendance_records
+    ]
+
+    df = pd.DataFrame(attendance_data)
+    filename = f"attendance_{session_id}.csv"
+    df.to_csv(filename, index=False)
+    return send_file(filename, as_attachment=True)
+
+@app.route('/edit_course/<string:class_id>', methods=['POST'])
+def edit_class():
+    if 'user' not in session or session['user']['role'] != 1:
+        return redirect(url_for('login'))
+
+    course_id = request.form['course_id']
+    new_course_name = request.form['course_name']
+
+    course = Class.query.get(course_id)
+    if not course:
+        flash('Course not found', 'error')
+        return redirect(url_for('instructor_dashboard'))
+
+    course.name = new_course_name
+    db.session.commit()
+    flash('Course updated successfully', 'success')
+    return redirect(url_for('instructor_dashboard'))
+
+@app.route('/delete_class/<string:class_id>', methods=['DELETE'])
+def delete_class(class_id):
+    if 'user' not in session or session['user']['role'] != 1:
+        return redirect(url_for('login'))
+
+    course = Class.query.get(class_id)
+    db.session.delete(course)
+    db.session.commit()
+    flash('Course deleted successfully', 'success')
+    return redirect(url_for('instructor_dashboard'))
+
+#student methods
 
 @app.route('/enroll_course', methods=['POST'])
 def enroll_course():
@@ -338,7 +435,7 @@ def enroll_course():
     flash('Enrolled in course successfully', 'success')
     return redirect(url_for('student_dashboard'))
 
-@app.route('/mark_attendance/<int:course_id>', methods=['POST'])
+@app.route('/mark_attendance/<string:course_id>', methods=['POST'])
 def mark_attendance(course_id):
     if 'user' not in session or session['user']['role'] != 0:
         return jsonify({'success': False, 'message': 'Unauthorized'})

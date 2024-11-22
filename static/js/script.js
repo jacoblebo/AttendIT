@@ -191,20 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let openCreateSessionModalBtn = document.getElementById('open-create-session-modal-btn');
         let createSessionModal = document.getElementById('create-session-modal');
         let span = createSessionModal ? createSessionModal.getElementsByClassName('close')[0] : null;
-    
-        if (!createSessionModal) {
-            console.error('Modal with id create-session-modal not found');
-            return;
-        }
-        if (!openCreateSessionModalBtn) {
-            console.error('Button with id open-create-session-modal-btn not found');
-            return;
-        }
-        if (!span) {
-            console.error('Close button not found in modal with id create-session-modal');
-            return;
-        }
-    
+
         openCreateSessionModalBtn.onclick = function() {
             let courseId = document.querySelector('.course-card.selected').getAttribute('data-course-id');
             document.getElementById('course-id').value = courseId;
@@ -255,6 +242,53 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
+    function setupEditCourseModal() {
+        let editCourseModal = document.getElementById('edit-course-modal');
+        let editCourseBtn = document.getElementById('edit-course-btn');
+        let closeBtn = editCourseModal ? editCourseModal.getElementsByClassName('close')[0] : null;
+    
+        if (!editCourseModal) {
+            console.error('Modal with id edit-course-modal not found');
+            return;
+        }
+        if (!editCourseBtn) {
+            console.error('Button with id edit-course-btn not found');
+            return;
+        }
+        if (!closeBtn) {
+            console.error('Close button not found in modal with id edit-course-modal');
+            return;
+        }
+    
+        editCourseBtn.onclick = function() {
+            let courseId = document.getElementById('course-info-modal').getAttribute('data-course-id');
+            document.getElementById('course-id').value = courseId;
+            editCourseModal.style.display = 'block';
+        };
+    
+        closeBtn.onclick = function() {
+            editCourseModal.style.display = 'none';
+        };
+    
+        window.onclick = function(event) {
+            if (event.target === editCourseModal) {
+                editCourseModal.style.display = 'none';
+            }
+        };
+    }
+    
+    // Call the functions to set up the modals and buttons
+    setupCreateCourseModal();
+    setupEnrollCourseModal();
+    setupCourseInfoModal();
+    setupCreateSessionModal();
+    setupStudentCourseInfoModal();
+    setupEditCourseModal();
+    
+
+
+
+
     // Call the functions to set up the modals and buttons
     setupCreateCourseModal();
     setupEnrollCourseModal();
@@ -263,4 +297,5 @@ document.addEventListener('DOMContentLoaded', function() {
     setupStudentCourseInfoModal();
     setupImHereForm();
     setupDownloadAttendanceButton();
+    setupEditCourseModal();
 });
