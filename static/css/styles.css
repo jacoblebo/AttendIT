@@ -54,6 +54,42 @@ footer {
     width: 100%;
 }
 
+/* Refining the login portion of the index page */
+#login_email_label, #login_email_input{
+    display: flex;
+    margin: 0%;
+}
+
+#login_password_label, #login_password_input{
+    display: flex;
+    margin: 0%;
+}
+
+#login_btn{
+    display: flex;
+    justify-content: center;
+    margin: auto;
+    margin-top: -10%;
+    margin-bottom: 10%;
+}
+
+
+
+/* Refining the register portion of the index page */
+
+#rf_email, #rf_password, #rf_firstName,#rf_lastName{
+    display: flex;
+    margin: 0%;
+
+}
+
+#rf_register_btn{
+    display: flex;
+    justify-content: center;
+    margin: auto;
+    margin-bottom: 10%;
+}
+
 /* Horizontal content alignment */
 .horizontal_main_content {
     display: flex;
