@@ -164,3 +164,4 @@ AttendIT.db
 
 .env
 AttendIT.db
+pytest.ini
