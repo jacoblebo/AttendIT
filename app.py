@@ -153,6 +153,7 @@ def login():
     else:
         flash('Email not found', 'error')
         return redirect(url_for('login'))
+    
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -379,8 +380,10 @@ def download_attendance(session_id):
     df.to_csv(filename, index=False)
     return send_file(filename, as_attachment=True)
 
-@app.route('/edit_course/<string:class_id>', methods=['POST'])
+@app.route('/edit_course', methods=['POST'])
 def edit_class():
+    print(request.form)
+
     if 'user' not in session or session['user']['role'] != 1:
         return redirect(url_for('login'))
 

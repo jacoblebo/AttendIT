@@ -183,6 +183,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 courseInfoModal.style.display = 'none';
             }
         };
+    
+        // Setup edit course modal
+        let editCourseBtn = document.getElementById('edit-course-btn');
+        let editCourseModal = document.getElementById('edit-course-modal');
+        let editCourseClose = editCourseModal ? editCourseModal.getElementsByClassName('close')[0] : null;
+    
+        if (!editCourseModal) {
+            console.error('Modal with id edit-course-modal not found');
+            return;
+        }
+        if (!editCourseBtn) {
+            console.error('Button with id edit-course-btn not found');
+            return;
+        }
+        if (!editCourseClose) {
+            console.error('Close button not found in modal with id edit-course-modal');
+            return;
+        }
+    
+        editCourseBtn.onclick = function() {
+            let courseId = document.getElementById('course-info-modal').getAttribute('data-course-id');
+            document.getElementById('course-id').value = courseId;
+            editCourseModal.style.display = 'block';
+        };
+    
+        editCourseClose.onclick = function() {
+            editCourseModal.style.display = 'none';
+        };
+    
+        window.onclick = function(event) {
+            if (event.target === editCourseModal) {
+                editCourseModal.style.display = 'none';
+            }
+        };
     }
     
     
@@ -218,84 +252,37 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+   
     function setupStudentCourseInfoModal() {
         let studentCourseInfoModal = document.getElementById('student-course-info-modal');
-        let closeBtn = studentCourseInfoModal ? studentCourseInfoModal.getElementsByClassName('close')[0] : null;
-    
+        let studentCourseInfoClose = studentCourseInfoModal ? studentCourseInfoModal.getElementsByClassName('close')[0] : null;
+
         if (!studentCourseInfoModal) {
             console.error('Modal with id student-course-info-modal not found');
             return;
         }
-        if (!closeBtn) {
+        if (!studentCourseInfoClose) {
             console.error('Close button not found in modal with id student-course-info-modal');
             return;
         }
-    
-        closeBtn.onclick = function() {
+
+        studentCourseInfoClose.onclick = function() {
             studentCourseInfoModal.style.display = 'none';
         };
-    
+
         window.onclick = function(event) {
             if (event.target === studentCourseInfoModal) {
                 studentCourseInfoModal.style.display = 'none';
             }
-        };
+        };s
     }
-
-    function setupEditCourseModal() {
-        let editCourseModal = document.getElementById('edit-course-modal');
-        let editCourseBtn = document.getElementById('edit-course-btn');
-        let closeBtn = editCourseModal ? editCourseModal.getElementsByClassName('close')[0] : null;
-    
-        if (!editCourseModal) {
-            console.error('Modal with id edit-course-modal not found');
-            return;
-        }
-        if (!editCourseBtn) {
-            console.error('Button with id edit-course-btn not found');
-            return;
-        }
-        if (!closeBtn) {
-            console.error('Close button not found in modal with id edit-course-modal');
-            return;
-        }
-    
-        editCourseBtn.onclick = function() {
-            let courseId = document.getElementById('course-info-modal').getAttribute('data-course-id');
-            document.getElementById('course-id').value = courseId;
-            editCourseModal.style.display = 'block';
-        };
-    
-        closeBtn.onclick = function() {
-            editCourseModal.style.display = 'none';
-        };
-    
-        window.onclick = function(event) {
-            if (event.target === editCourseModal) {
-                editCourseModal.style.display = 'none';
-            }
-        };
-    }
-    
-    // Call the functions to set up the modals and buttons
-    setupCreateCourseModal();
-    setupEnrollCourseModal();
-    setupCourseInfoModal();
-    setupCreateSessionModal();
-    setupStudentCourseInfoModal();
-    setupEditCourseModal();
-    
-
-
-
 
     // Call the functions to set up the modals and buttons
     setupCreateCourseModal();
     setupEnrollCourseModal();
     setupCourseInfoModal();
     setupCreateSessionModal();
-    setupStudentCourseInfoModal();
     setupImHereForm();
     setupDownloadAttendanceButton();
-    setupEditCourseModal();
+    setupStudentCourseInfoModal();
 });
