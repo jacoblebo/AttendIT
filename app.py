@@ -382,12 +382,12 @@ def download_attendance(session_id):
 
 @app.route('/edit_course', methods=['POST'])
 def edit_class():
-    print(request.form)
-
+    print(request.form)  # Debugging: Print the form data
+    print(request.form['course-id'])  # Debugging: Print the course-id
     if 'user' not in session or session['user']['role'] != 1:
         return redirect(url_for('login'))
 
-    course_id = request.form['course_id']
+    course_id = request.form['course-id']
     new_course_name = request.form['course_name']
 
     course = Class.query.get(course_id)

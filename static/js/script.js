@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         courseInfoClose.onclick = function() {
             courseInfoModal.style.display = 'none';
-        };
+        }; 
         window.onclick = function(event) {
             if (event.target === courseInfoModal) {
                 courseInfoModal.style.display = 'none';
@@ -204,7 +204,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
         editCourseBtn.onclick = function() {
             let courseId = document.getElementById('course-info-modal').getAttribute('data-course-id');
+            console.log(courseId);
             document.getElementById('course-id').value = courseId;
+            console.log("Test " + document.getElementById('course-id').value);
             editCourseModal.style.display = 'block';
         };
     
