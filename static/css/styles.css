@@ -15,8 +15,8 @@ footer {
     background-color: #005035;
     color: white;
     text-align: center;
-    padding: 10px;
-    position: relative;
+    padding: 10px 0;
+    position: fixed;
     bottom: 0;
     width: 100%;
 }
@@ -26,62 +26,38 @@ footer {
 }
 
 .navbar {
-    background-color: #005035; 
+    background-color: #005035;
 }
 
 .navbar .nav-link {
-    color: #ffffff !important; 
+    color: #ffffff !important;
 }
 
 .navbar .nav-link:hover {
-    color: #dddddd !important; 
+    color: #dddddd !important;
 }
 
 .navbar-brand {
-    color: #ffffff !important; 
+    color: #ffffff !important;
     font-weight: bold;
 }
 
-
-
-footer {
-    background-color: #005035;
-    color: white;
-    text-align: center;
-    padding: 10px 0;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-}
-
-/* Horizontal content alignment */
 .horizontal_main_content {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 4rem;
-    padding-top: 3rem;
     flex-wrap: wrap;
-}
-
-/* Card container styles */
-.vertical_cards {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: left;
-    transition: filter 0.3s ease;
+    gap: 20px;
+    justify-content: center;
+    padding-top: 3rem;
 }
 
 /* Style for general cards */
 .card_style {
     border-radius: 0.75rem;
     background-color: #F5F5F5; 
-    width: 22rem;
-    height: 6rem;
+    width: 44rem; /* Double the width */
+    height: auto;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     margin: 1rem;
@@ -110,39 +86,130 @@ footer {
     align-items: center;
     justify-content: flex-start;
     margin: 1rem;
-    gap: 1rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.card_course_status_style:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+/* New styles for course cards in instructor dashboard */
+.course-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 44rem; /* Double the width */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-.card_course_status_style p {
-    color: #333;
-}
-
-.card_course_status_style button {
-    height: 3rem;
-    width: 80%; 
+.course-card .card-header {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    border-radius: 0.75rem;
-    background-color: #005035;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.course-card .card-body {
+    flex-grow: 1;
+    width: 100%;
+}
+
+.course-card .card-body p {
+    margin: 5px 0;
+}
+
+.course-card .session-table-container {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 10px;
+}
+
+.course-card .session-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.course-card .session-table th,
+.course-card .session-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.course-card .session-table th {
+    background-color: #f2f2f2;
+}
+
+.course-card .edit-course-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.course-card .edit-course-form {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.course-card .edit-course-form input[type="text"] {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.course-card .edit-course-label {
+    margin-right: 10px;
+}
+
+.course-card .card-footer {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.course-card .edit-course-btn,
+.course-card .new-session-btn,
+.course-card .close-edit-course-btn {
+    background-color: #007bff;
     color: white;
     border: none;
+    padding: 10px;
+    border-radius: 4px;
     cursor: pointer;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.2s, box-shadow 0.2s;
+    font-size: 1rem;
 }
 
-.card_course_status_style button:hover {
-    background-color: #004026; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); 
+.course-card .edit-course-btn:hover,
+.course-card .new-session-btn:hover,
+.course-card .close-edit-course-btn:hover {
+    background-color: #0056b3;
 }
 
+.save-course-btn {
+    background: none;
+    border: none;
+    color: #28a745;
+    cursor: pointer;
+    font-size: 1.5rem;
+}
+
+.save-course-btn:hover {
+    color: #218838;
+}
+
+.delete-course-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 1.5rem;
+}
+
+.delete-course-btn:hover {
+    color: #c82333;
+}
 
 /* Style for blur */
 #blurOverlay {
@@ -153,9 +220,9 @@ footer {
     left: 0;
     width: 100%;
     height: 100%;
-    backdrop-filter: blur(1px); 
-    background-color: rgba(0, 0, 0, 0.08); 
-    z-index: 500; 
+    backdrop-filter: blur(1px);
+    background-color: rgba(0, 0, 0, 0.08);
+    z-index: 500;
 }
 
 /* Popover styling */
@@ -165,7 +232,7 @@ footer {
     top: 10rem;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 1000; 
+    z-index: 1000;
     background-color: #F5F5F5;
     padding: 1.5rem;
     border-radius: 1rem;
@@ -193,8 +260,8 @@ footer {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgb(0,0,0);
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4);
 }
 
 .modal-content {
@@ -202,10 +269,14 @@ footer {
     margin: 10% auto;
     padding: 20px;
     border: 1px solid #888;
-    width: 50%; /* Adjust the width as needed */
-    max-width: 600px; /* Set a maximum width */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a shadow for better visibility */
-    border-radius: 8px; /* Optional: Add rounded corners */
+    width: 50%;
+    /* Adjust the width as needed */
+    max-width: 600px;
+    /* Set a maximum width */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Add a shadow for better visibility */
+    border-radius: 8px;
+    /* Optional: Add rounded corners */
 }
 
 .close {
@@ -220,4 +291,26 @@ footer {
     color: black;
     text-decoration: none;
     cursor: pointer;
+}
+
+.flash-messages {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+}
+
+.flash-message {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    color: white;
+}
+
+.flash-message.success {
+    background-color: #28a745;
+}
+
+.flash-message.error {
+    background-color: #dc3545;
 }

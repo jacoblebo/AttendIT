@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, flash, url_for, jsonify, send_file
+from flask import Flask, render_template, request, redirect, session, flash, url_for, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 import bcrypt
 import os
@@ -35,7 +35,7 @@ class User(db.Model):
 class Attendance(db.Model):
     __tablename__ = 'Attendance'
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()))
-    session_id = db.Column(db.Integer, db.ForeignKey('Sessions.id'))
+    session_id = db.Column(db.Integer, db.ForeignKey('ClassSessions.id'))
     student_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
     status = db.Column(db.Integer)
 
@@ -52,13 +52,13 @@ class Enrollment(db.Model):
     student_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
     class_id = db.Column(db.Integer, db.ForeignKey('Classes.id'), nullable=False)
 
-class Session(db.Model):
-    __tablename__ = 'Sessions'
-    id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()))
-    class_id = db.Column(db.Integer, db.ForeignKey('Classes.id'))
-    session_start_date = db.Column(db.String(50))
-    session_end_date = db.Column(db.String(50))
-    bypass_code = db.Column(db.String(5))
+class ClassSession(db.Model):
+    __tablename__ = 'ClassSessions'
+    id = db.Column(db.String, primary_key=True)
+    class_id = db.Column(db.String, db.ForeignKey('Classes.id'), nullable=False)
+    session_start_date = db.Column(db.String, nullable=False)
+    session_end_date = db.Column(db.String, nullable=False)
+    bypass_code = db.Column(db.String, nullable=False)
 
 db.init_app(app)
 
@@ -96,9 +96,8 @@ with app.app_context():
             db.session.add(test_student)
             db.session.commit()
             print("Test student created with email: ", test_student_email)
-        
     else:
-        print("Database already exists")
+        print("Database already exists, happy bug hunting!")
 
 @app.before_request
 def method_override():
@@ -206,7 +205,7 @@ def student_dashboard():
 
     # Sort courses by the next session date, handling cases where no session exists
     def get_next_session_start_date(course):
-        next_session = Session.query.filter_by(class_id=course.id).order_by(Session.session_start_date).first()
+        next_session = ClassSession.query.filter_by(class_id=course.id).order_by(ClassSession.session_start_date).first()
         return next_session.session_start_date if next_session else "9999-12-31 23:59:59"
 
     courses.sort(key=get_next_session_start_date)
@@ -222,7 +221,7 @@ def student_course_info(course_id):
     if not course:
         return jsonify({'error': 'Course not found'}), 404
 
-    next_session = Session.query.filter_by(class_id=course_id).order_by(Session.session_start_date).first()
+    next_session = ClassSession.query.filter_by(class_id=course_id).order_by(ClassSession.session_start_date).first()
     next_session_info = f"{next_session.session_start_date} to {next_session.session_end_date}" if next_session else "No upcoming sessions"
 
     course_info = {
@@ -231,7 +230,6 @@ def student_course_info(course_id):
     }
     return jsonify(course_info)
 
-# Instructor Dashboard
 @app.route('/instructor_dashboard', methods=['GET'])
 def instructor_dashboard():
     if 'user' not in session or session['user']['role'] != 1:
@@ -239,6 +237,37 @@ def instructor_dashboard():
 
     professor_id = session['user']['id']
     courses = Class.query.filter_by(professor_id=professor_id).all()
+
+    # Add additional data for each course
+    for course in courses:
+        course.enrollment = Enrollment.query.filter_by(class_id=course.id).count()
+        class_sessions = ClassSession.query.filter_by(class_id=course.id).order_by(ClassSession.session_start_date).all()
+        course.sessions = []
+        for class_session in class_sessions:
+            attendees = Attendance.query.filter_by(session_id=class_session.id).count()
+            percent_present = (attendees / course.enrollment) * 100 if course.enrollment > 0 else 0
+            start_datetime = datetime.strptime(class_session.session_start_date, "%Y-%m-%d %H:%M:%S")
+            end_datetime = datetime.strptime(class_session.session_end_date, "%Y-%m-%d %H:%M:%S")
+            if start_datetime.date() == end_datetime.date():
+                session_date = f"{start_datetime.strftime('%I:%M %p')} - {end_datetime.strftime('%I:%M %p %m/%d/%y')}"
+            else:
+                session_date = f"{start_datetime.strftime('%I:%M %p %m/%d/%y')} - {end_datetime.strftime('%I:%M %p %m/%d/%y')}"
+            course.sessions.append({
+                'session_date': session_date,
+                'bypass_code': class_session.bypass_code,
+                'attendees': attendees,
+                'percent_present': percent_present
+            })
+        
+        # Find the index of the next/current session
+        now = datetime.now()
+        next_session_index = next((i for i, s in enumerate(class_sessions) if datetime.strptime(s.session_start_date, "%Y-%m-%d %H:%M:%S") >= now), len(class_sessions))
+
+        # Select the next/current session, the 3 after that, and the 4 before that
+        start_index = max(0, next_session_index - 4)
+        end_index = min(len(class_sessions), next_session_index + 4)
+        course.recent_sessions = course.sessions[start_index:end_index]
+
     return render_template('instructor_dashboard.html', user=session['user'], courses=courses)
 
 # Logout Route
@@ -300,7 +329,7 @@ def course_info(course_id):
     enrollment_count = Enrollment.query.filter_by(class_id=course_id).count()
     print(f"Enrollment count for course_id {course_id}: {enrollment_count}")
 
-    next_session = Session.query.filter_by(class_id=course_id).order_by(Session.session_start_date).first()
+    next_session = ClassSession.query.filter_by(class_id=course_id).order_by(ClassSession.session_start_date).first()
     print(f"Next session for course_id {course_id}: {next_session}")
 
     next_session_info = {
@@ -344,7 +373,7 @@ def create_session():
     
     print(f"Creating session for class_id={class_id}, session_start_date={session_start_datetime}, session_end_date={session_end_datetime}, bypass_code={bypass_code}")
     
-    new_session = Session(
+    new_class_session = ClassSession(
         id=str(uuid.uuid4()),
         class_id=class_id,
         session_start_date=session_start_datetime.strftime("%Y-%m-%d %H:%M:%S"),
@@ -352,41 +381,80 @@ def create_session():
         bypass_code=bypass_code
     )
     
-    db.session.add(new_session)
+    db.session.add(new_class_session)
     db.session.commit()
     flash('Session created successfully', 'success')
     return redirect(url_for('instructor_dashboard'))
 
+@app.route('/edit_session/<string:session_id>', methods=['POST'])
+def edit_session(session_id):
+    if 'user' not in session or session['user']['role'] != 1:
+        flash('Unauthorized', 'error')
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
+    session_record = ClassSession.query.get(session_id)
+    if not session_record:
+        flash('Session not found', 'error')
+        return jsonify({'success': False, 'message': 'Session not found'}), 404
+
+    data = request.get_json()
+    new_start_date = data['start_date']
+    new_end_date = data['end_date']
+    session_record.session_start_date = new_start_date
+    session_record.session_end_date = new_end_date
+    db.session.commit()
+    flash('Session updated successfully', 'success')
+    return jsonify({'success': True, 'message': 'Session updated successfully'})
+
 @app.route('/download_attendance/<string:session_id>', methods=['GET'])
 def download_attendance(session_id):
     if 'user' not in session or session['user']['role'] != 1:
+        flash('Unauthorized', 'error')
         return redirect(url_for('login'))
 
-    session_record = Session.query.get(session_id)
+    session_record = ClassSession.query.get(session_id)
     if not session_record:
         flash('Session not found', 'error')
         return redirect(url_for('instructor_dashboard'))
 
     attendance_records = Attendance.query.filter_by(session_id=session_id).all()
-    attendance_data = [
-        {
-            'Student ID': record.student_id,
-            'Status': record.status
-        } for record in attendance_records
-    ]
+    data = [{'Student ID': record.student_id, 'Status': record.status} for record in attendance_records]
+    
+    # Create a DataFrame
+    df = pd.DataFrame(data)
+    
+    # Generate CSV data
+    csv_data = df.to_csv(index=False)
+    
+    # Format the file name
+    session_start_datetime = datetime.strptime(session_record.session_start_date, "%Y-%m-%d %H:%M:%S")
+    file_name = f"attendance_{session_start_datetime.strftime('%Y-%m-%d_%H-%M-%S')}.csv"
+    
+    response = make_response(csv_data)
+    response.headers["Content-Disposition"] = f"attachment; filename={file_name}"
+    response.headers["Content-Type"] = "text/csv"
+    return response
 
-    df = pd.DataFrame(attendance_data)
-    filename = f"attendance_{session_id}.csv"
-    df.to_csv(filename, index=False)
-    return send_file(filename, as_attachment=True)
+@app.route('/delete_session/<string:session_id>', methods=['DELETE'])
+def delete_session(session_id):
+    if 'user' not in session or session['user']['role'] != 1:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
+    session_record = ClassSession.query.get(session_id)
+    if not session_record:
+        return jsonify({'success': False, 'message': 'Session not found'}), 404
+
+    Attendance.query.filter_by(session_id=session_id).delete()
+    db.session.delete(session_record)
+    db.session.commit()
+    flash('Session deleted successfully', 'success')
+    return jsonify({'success': True, 'message': 'Session deleted successfully'})
 
 @app.route('/edit_course', methods=['POST'])
-def edit_class():
-    print(request.form)  # Debugging: Print the form data
-    print(request.form['course-id'])  # Debugging: Print the course-id
+def edit_course():
     if 'user' not in session or session['user']['role'] != 1:
         return redirect(url_for('login'))
-
+    print("Form data received:", request.form)
     course_id = request.form['course-id']
     new_course_name = request.form['course_name']
 
@@ -397,19 +465,32 @@ def edit_class():
 
     course.name = new_course_name
     db.session.commit()
+
     flash('Course updated successfully', 'success')
     return redirect(url_for('instructor_dashboard'))
 
 @app.route('/delete_class/<string:class_id>', methods=['DELETE'])
 def delete_class(class_id):
     if 'user' not in session or session['user']['role'] != 1:
-        return redirect(url_for('login'))
+        flash('Unauthorized', 'error')
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
 
     course = Class.query.get(class_id)
+    if not course:
+        flash('Course not found', 'error')
+        return jsonify({'success': False, 'message': 'Course not found'}), 404
+
+    # Delete associated records
+    ClassSession.query.filter_by(class_id=class_id).delete()
+    Enrollment.query.filter_by(class_id=class_id).delete()
+    Attendance.query.filter(Attendance.session_id.in_(
+        db.session.query(ClassSession.id).filter_by(class_id=class_id)
+    )).delete()
+
     db.session.delete(course)
     db.session.commit()
     flash('Course deleted successfully', 'success')
-    return redirect(url_for('instructor_dashboard'))
+    return jsonify({'success': True, 'message': 'Course deleted successfully'})
 
 #student methods
 
@@ -447,9 +528,9 @@ def mark_attendance(course_id):
     data = request.get_json()
     bypass_code = data.get('bypass_code')
 
-    session_record = Session.query.filter_by(class_id=course_id).filter(
-        Session.session_start_date <= current_time,
-        Session.session_end_date >= current_time
+    session_record = ClassSession.query.filter_by(class_id=course_id).filter(
+        ClassSession.session_start_date <= current_time,
+        ClassSession.session_end_date >= current_time
     ).first()
 
     if not session_record:

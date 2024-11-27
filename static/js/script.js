@@ -1,290 +1,266 @@
 console.log("Script loaded");
 
-function toggleForms() {
-    console.log("Swapping forms");
-    let loginForm = document.getElementById('login-form');
-    let registerForm = document.getElementById('register-form');
-    let toggleLink = document.getElementById('toggle-link');
-    let pageTitle = document.getElementById('page-title');
+// Utility functions
+const getElement = (id) => document.getElementById(id);
+const setupModal = (modalId, openBtnId, closeSelector) => {
+    const modal = getElement(modalId);
+    const openBtn = getElement(openBtnId);
+    const closeBtn = modal?.querySelector(closeSelector);
 
-    if (loginForm.style.display === 'none') {
-        loginForm.style.display = 'block';
-        registerForm.style.display = 'none';
-        pageTitle.innerHTML = "Login";
-        toggleLink.innerHTML = "Don't have an account? <button type='button' onclick='toggleForms()'>Register</button>";
-    } else {
-        loginForm.style.display = 'none';
-        registerForm.style.display = 'block';
-        pageTitle.innerHTML = "Register";
-        toggleLink.innerHTML = "Already have an account? <button type='button' onclick='toggleForms()'>Login</button>";
-    }
-}
-
-function handleImHereFormSubmit(event) {
-    event.preventDefault();
-    let courseId = document.getElementById('course-id').value;
-    let bypassCode = document.getElementById('bypass-code').value;
-    fetch(`/mark_attendance/${courseId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
-        },
-        body: JSON.stringify({
-            bypass_code: bypassCode
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Attendance marked successfully');
-        } else {
-            alert(data.message);
-        }
-    })
-    .catch(error => console.error('Error marking attendance:', error));
-}
-
-function setupImHereForm() {
-    let imHereForm = document.getElementById('im-here-form');
-    if (imHereForm) {
-        imHereForm.addEventListener('submit', handleImHereFormSubmit);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM fully loaded and parsed'); // Log when DOM is loaded
-
-    function setupCreateCourseModal() {
-        console.log('Setting up create course modal'); // Log when setting up the modal
-
-        let modal = document.getElementById('create-course-modal');
-        let btn = document.getElementById('create-course-btn');
-        let span = modal ? modal.getElementsByClassName('close')[0] : null;
-
-        if (!modal) {
-            console.error('Modal with id create-course-modal not found');
-            return;
-        }
-        if (!btn) {
-            console.error('Button with id create-course-btn not found');
-            return;
-        }
-        if (!span) {
-            console.error('Close button not found in modal with id create-course-modal');
-            return;
-        }
-
-        btn.onclick = function() {
-            console.log('create-course-btn button clicked'); // Print to console
-            modal.style.display = 'block';
-        };
-
-        span.onclick = function() {
-            modal.style.display = 'none';
-        };
-
-        window.onclick = function(event) {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        };
+    if (!modal || !openBtn || !closeBtn) {
+        console.error(`Missing modal setup for: ${modalId}`);
+        return;
     }
 
-    function setupEnrollCourseModal() {
-        console.log('Setting up enroll course modal'); // Log when setting up the modal
-
-        let modal = document.getElementById('enroll-course-modal');
-        let btn = document.getElementById('enroll-course-btn');
-        let span = modal ? modal.getElementsByClassName('close')[0] : null;
-
-        if (!modal) {
-            console.error('Modal with id enroll-course-modal not found');
-            return;
+    openBtn.onclick = () => (modal.style.display = "block");
+    closeBtn.onclick = () => (modal.style.display = "none");
+    window.onclick = (event) => {
+        if (event.target === modal) {
+            modal.style.display = "none";
         }
-        if (!btn) {
-            console.error('Button with id enroll-course-btn not found');
-            return;
-        }
-        if (!span) {
-            console.error('Close button not found in modal with id enroll-course-modal');
-            return;
-        }
+    };
+};
 
-        btn.onclick = function() {
-            console.log('enroll-course-btn button clicked'); // Print to console
-            modal.style.display = 'block';
-        };
+// Form handlers
+const handleFormSubmit = (formId, callback) => {
+    const form = getElement(formId);
+    if (!form) return;
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        callback(new FormData(form));
+    });
+};
 
-        span.onclick = function() {
-            modal.style.display = 'none';
-        };
-
-        window.onclick = function(event) {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        };
-    }
-
-    function setupCourseInfoModal() {
-        document.querySelectorAll('.course-card').forEach(card => {
-            card.addEventListener('click', function() {
-                document.querySelectorAll('.course-card').forEach(c => c.classList.remove('selected'));
-                this.classList.add('selected');
-                let courseId = this.getAttribute('data-course-id');
-                let userRole = document.getElementById('user-role').value;
-    
-                if (userRole == 1) { // 1 for professor
-                    fetch(`/course_info/${courseId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            document.getElementById('course-name').textContent = `Course Name: ${data.name}`;
-                            document.getElementById('course-join-code').textContent = `Join Code: ${data.join_code}`;
-                            document.getElementById('course-enrollment').textContent = `Enrollment: ${data.enrollment}`;
-                            if (data.next_session) {
-                                document.getElementById('next-session-info').textContent = `Next Session: ${data.next_session.start_date} to ${data.next_session.end_date}, Bypass Code: ${data.next_session.bypass_code}`;
-                            } else {
-                                document.getElementById('next-session-info').textContent = 'No upcoming sessions';
-                            }
-                            document.getElementById('course-info-modal').setAttribute('data-course-id', courseId);
-                            document.getElementById('course-info-modal').style.display = 'block';
-                        })
-                        .catch(error => console.error('Error fetching course info:', error));
-                } else {
-                    fetch(`/student_course_info/${courseId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            document.getElementById('student-course-name').textContent = `Course Name: ${data.name}`;
-                            document.getElementById('next-session-info').textContent = `Next Session: ${data.next_session}`;
-                            document.getElementById('course-id').value = courseId;
-                            document.getElementById('student-course-info-modal').style.display = 'block';
-                        })
-                        .catch(error => console.error('Error fetching course info:', error));
-                }
-            });
+// Fetch utility
+const fetchData = async (url, method, body) => {
+    try {
+        const response = await fetch(url, {
+            method,
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": document.querySelector('input[name="csrf_token"]').value,
+            },
+            body: JSON.stringify(body),
         });
-    
-        let courseInfoModal = document.getElementById('course-info-modal');
-        let courseInfoClose = courseInfoModal ? courseInfoModal.getElementsByClassName('close')[0] : null;
-        if (!courseInfoModal) {
-            console.error('Modal with id course-info-modal not found');
-            return;
-        }
-        if (!courseInfoClose) {
-            console.error('Close button not found in modal with id course-info-modal');
-            return;
-        }
-        courseInfoClose.onclick = function() {
-            courseInfoModal.style.display = 'none';
-        }; 
-        window.onclick = function(event) {
-            if (event.target === courseInfoModal) {
-                courseInfoModal.style.display = 'none';
-            }
-        };
-    
-        // Setup edit course modal
-        let editCourseBtn = document.getElementById('edit-course-btn');
-        let editCourseModal = document.getElementById('edit-course-modal');
-        let editCourseClose = editCourseModal ? editCourseModal.getElementsByClassName('close')[0] : null;
-    
-        if (!editCourseModal) {
-            console.error('Modal with id edit-course-modal not found');
-            return;
-        }
-        if (!editCourseBtn) {
-            console.error('Button with id edit-course-btn not found');
-            return;
-        }
-        if (!editCourseClose) {
-            console.error('Close button not found in modal with id edit-course-modal');
-            return;
-        }
-    
-        editCourseBtn.onclick = function() {
-            let courseId = document.getElementById('course-info-modal').getAttribute('data-course-id');
-            console.log(courseId);
-            document.getElementById('course-id').value = courseId;
-            console.log("Test " + document.getElementById('course-id').value);
-            editCourseModal.style.display = 'block';
-        };
-    
-        editCourseClose.onclick = function() {
-            editCourseModal.style.display = 'none';
-        };
-    
-        window.onclick = function(event) {
-            if (event.target === editCourseModal) {
-                editCourseModal.style.display = 'none';
-            }
-        };
+        return await response.json();
+    } catch (error) {
+        console.error("Fetch error:", error);
     }
-    
-    
+};
 
-    function setupCreateSessionModal() {
-        let openCreateSessionModalBtn = document.getElementById('open-create-session-modal-btn');
-        let createSessionModal = document.getElementById('create-session-modal');
-        let span = createSessionModal ? createSessionModal.getElementsByClassName('close')[0] : null;
+// Specific handlers
+const handleAttendanceSubmit = async (formData) => {
+    const courseId = formData.get("course-id");
+    const bypassCode = formData.get("bypass-code");
+    const data = await fetchData(`/mark_attendance/${courseId}`, "POST", { bypass_code: bypassCode });
 
-        openCreateSessionModalBtn.onclick = function() {
-            let courseId = document.querySelector('.course-card.selected').getAttribute('data-course-id');
-            document.getElementById('course-id').value = courseId;
-            createSessionModal.style.display = 'block';
-        };
-    
-        span.onclick = function() {
-            createSessionModal.style.display = 'none';
-        };
-    
-        window.onclick = function(event) {
-            if (event.target === createSessionModal) {
-                createSessionModal.style.display = 'none';
-            }
-        };
+    if (data?.success) {
+        alert("Attendance marked successfully");
+    } else {
+        alert("Failed to mark attendance");
     }
-    function setupDownloadAttendanceButton() {
-        let downloadAttendanceBtn = document.getElementById('download-attendance-btn');
-        if (downloadAttendanceBtn) {
-            downloadAttendanceBtn.addEventListener('click', function() {
-                let courseId = document.getElementById('course-info-modal').getAttribute('data-course-id');
-                window.location.href = `/download_attendance/${courseId}`;
+};
+
+// Initialization
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("DOM fully loaded and parsed");
+
+    // Modal setups
+    setupModal("create-course-modal", "create-course-btn", ".close");
+    setupModal("enroll-course-modal", "enroll-course-btn", ".close");
+    setupModal("create-session-modal", "open-create-session-modal-btn", ".close");
+    setupModal("edit-session-modal", "open-edit-session-modal-btn", ".close");
+
+    // Form setups
+    handleFormSubmit("im-here-form", handleAttendanceSubmit);
+
+    // New session buttons
+    document.querySelectorAll(".new-session-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+            const courseId = button.closest(".course-card").getAttribute("data-course-id");
+            // Open the create session modal and set the course ID
+            const modal = getElement("create-session-modal");
+            modal.style.display = "block";
+            getElement("course-id").value = courseId;
+        });
+    });
+
+    // Edit course buttons
+    document.querySelectorAll(".edit-course-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+            const container = button.closest(".course-card");
+            const form = container.querySelector(".edit-course-form");
+            const closeButton = container.querySelector(".close-edit-course-btn");
+            form.style.display = "flex";
+            button.style.display = "none";
+            closeButton.style.display = "inline";
+        });
+    });
+
+    // Close edit course buttons
+    document.querySelectorAll(".close-edit-course-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+            const container = button.closest(".course-card");
+            const form = container.querySelector(".edit-course-form");
+            const editButton = container.querySelector(".edit-course-btn");
+            form.style.display = "none";
+            button.style.display = "none";
+            editButton.style.display = "inline";
+        });
+    });
+
+    // Toggle sessions buttons
+    document.querySelectorAll(".toggle-sessions-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+            const courseId = button.getAttribute("data-course-id");
+            const courseCard = document.querySelector(`.course-card[data-course-id="${courseId}"]`);
+            const allSessions = courseCard.querySelector(".all-sessions");
+            if (allSessions.style.display === "none") {
+                allSessions.style.display = "block";
+                button.textContent = "Show Less";
+            } else {
+                allSessions.style.display = "none";
+                button.textContent = "Show All Sessions";
+            }
+        });
+    });
+
+    document.querySelectorAll(".delete-course-btn").forEach((button) => {
+        button.addEventListener("click", async () => {
+            const courseId = button.closest(".course-card").getAttribute("data-course-id");
+            if (confirm("Are you sure you want to delete this course and all its associated records?")) {
+                try {
+                    const response = await fetch(`/delete_class/${courseId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value,
+                        },
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        alert("Failed to delete course: " + result.message);
+                    }
+                } catch (error) {
+                    console.error("Error deleting course:", error);
+                    alert("An error occurred while deleting the course.");
+                }
+            }
+        });
+    });
+
+    document.querySelectorAll(".edit-session-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+            const sessionId = button.closest("tr").getAttribute("data-session-id");
+            const sessionStartDate = button.closest("tr").querySelector(".session-start-date").textContent;
+            const sessionEndDate = button.closest("tr").querySelector(".session-end-date").textContent;
+    
+            // Populate the modal with session details
+            document.getElementById("edit-session-id").value = sessionId;
+            document.getElementById("edit-session-start-date").value = sessionStartDate;
+            document.getElementById("edit-session-end-date").value = sessionEndDate;
+    
+            // Open the modal
+            const modal = document.getElementById("edit-session-modal");
+            modal.style.display = "block";
+        });
+    });
+    
+    // Close the modal when the user clicks on <span> (x)
+    document.querySelector("#edit-session-modal .close").addEventListener("click", () => {
+        document.getElementById("edit-session-modal").style.display = "none";
+    });
+    
+    // Close the modal when the user clicks anywhere outside of the modal
+    window.addEventListener("click", (event) => {
+        const modal = document.getElementById("edit-session-modal");
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    });
+
+    document.getElementById("edit-session-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+    
+        const formData = new FormData(event.target);
+        const sessionId = formData.get("session_id");
+        const startDate = formData.get("start_date");
+        const endDate = formData.get("end_date");
+    
+        try {
+            const response = await fetch(`/edit_session/${sessionId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value,
+                },
+                body: JSON.stringify({
+                    start_date: startDate,
+                    end_date: endDate
+                }),
             });
-        }
-    }
-
-   
-    function setupStudentCourseInfoModal() {
-        let studentCourseInfoModal = document.getElementById('student-course-info-modal');
-        let studentCourseInfoClose = studentCourseInfoModal ? studentCourseInfoModal.getElementsByClassName('close')[0] : null;
-
-        if (!studentCourseInfoModal) {
-            console.error('Modal with id student-course-info-modal not found');
-            return;
-        }
-        if (!studentCourseInfoClose) {
-            console.error('Close button not found in modal with id student-course-info-modal');
-            return;
-        }
-
-        studentCourseInfoClose.onclick = function() {
-            studentCourseInfoModal.style.display = 'none';
-        };
-
-        window.onclick = function(event) {
-            if (event.target === studentCourseInfoModal) {
-                studentCourseInfoModal.style.display = 'none';
+    
+            const result = await response.json();
+            if (result.success) {
+                location.reload();
+            } else {
+                alert("Failed to update session: " + result.message);
             }
-        };s
-    }
+        } catch (error) {
+            console.error("Error updating session:", error);
+            alert("An error occurred while updating the session.");
+        }
+    });
 
-    // Call the functions to set up the modals and buttons
-    setupCreateCourseModal();
-    setupEnrollCourseModal();
-    setupCourseInfoModal();
-    setupCreateSessionModal();
-    setupImHereForm();
-    setupDownloadAttendanceButton();
-    setupStudentCourseInfoModal();
+    document.querySelectorAll(".download-session-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+            const sessionId = button.closest("tr").getAttribute("data-session-id");
+            window.location.href = `/download_attendance/${sessionId}`;
+        });
+    });
+    
+    document.querySelectorAll(".edit-session-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+            const sessionId = button.closest("tr").getAttribute("data-session-id");
+            const sessionStartDate = button.closest("tr").querySelector(".session-start-date").textContent;
+            const sessionEndDate = button.closest("tr").querySelector(".session-end-date").textContent;
+    
+            // Populate the modal with session details
+            document.getElementById("edit-session-id").value = sessionId;
+            document.getElementById("edit-session-start-date").value = sessionStartDate;
+            document.getElementById("edit-session-end-date").value = sessionEndDate;
+    
+            // Open the modal
+            const modal = document.getElementById("edit-session-modal");
+            modal.style.display = "block";
+        });
+    });
+    
+    document.querySelectorAll(".delete-session-btn").forEach((button) => {
+        button.addEventListener("click", async () => {
+            const sessionId = button.closest("tr").getAttribute("data-session-id");
+            if (confirm("Are you sure you want to delete this session and all its associated records?")) {
+                try {
+                    const response = await fetch(`/delete_session/${sessionId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value,
+                        },
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        alert("Failed to delete session: " + result.message);
+                    }
+                } catch (error) {
+                    console.error("Error deleting session:", error);
+                    alert("An error occurred while deleting the session.");
+                }
+            }
+        });
+    });
 });

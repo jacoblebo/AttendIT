@@ -1,20 +1,124 @@
 <!-- /templates/instructor_dashboard.html -->
 {% extends 'layout.html' %}
 {% block content %}
-    <h1>Welcome to Attend IT!</h1>
-    <p>Here are the courses you are teaching:</p>
-    <div class="horizontal_main_content">
-        {% for course in courses %}
-            <div class="card_style course-card" data-course-id="{{ course.id }}">
-                <p>{{ course.name }}</p>
+<h1>Welcome to Attend IT!</h1>
+<p>Here are the courses you are teaching:</p>
+<div class="horizontal_main_content">
+    {% for course in courses %}
+    <div class="card_style course-card" data-course-id="{{ course.id }}">
+        <div class="card-header">
+            <h2>{{ course.name }}</h2>
+            <button type="button" class="delete-course-btn" title="Delete Course">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        <div class="card-body">
+            <p><strong>Join Code:</strong> {{ course.join_code }}</p>
+            <p><strong>Enrollment:</strong> {{ course.enrollment }}</p>
+            <div class="session-table-container">
+                <table class="session-table">
+                    <thead>
+                        <tr>
+                            <th>Session Date</th>
+                            <th>Code</th>
+                            <th>#</th>
+                            <th>%</th>
+                            <th>Edit</th>
+                            <th>Download</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for session in course.recent_sessions %}
+                        <tr>
+                            <td>{{ session.session_date }}</td>
+                            <td>{{ session.bypass_code }}</td>
+                            <td>{{ session.attendees }}</td>
+                            <td>{{ session.percent_present }}%</td>
+                            <td>
+                                <button type="button" class="edit-session-btn" title="Edit Session">
+                                    <i class="fas fa-edit" style="color: green;"></i>
+                                </button>
+                            </td>
+                            <td>
+                                <button type="button" class="download-session-btn" title="Download CSV">
+                                    <i class="fas fa-download" style="color: blue;"></i>
+                                </button>
+                            </td>
+                            <td>
+                                <button type="button" class="delete-session-btn" title="Delete Session">
+                                    <i class="fas fa-trash" style="color: red;"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% if course.sessions|length > 8 %}
+                <button type="button" class="toggle-sessions-btn" data-course-id="{{ course.id }}">Show All
+                    Sessions</button>
+                {% endif %}
+                <div class="all-sessions" style="display: none;">
+                    <table class="session-table">
+                        <tbody>
+                            {% for session in course.sessions %}
+                            <tr>
+                                <td>{{ session.session_date }}</td>
+                                <td>{{ session.bypass_code }}</td>
+                                <td>{{ session.attendees }}</td>
+                                <td>{{ session.percent_present }}%</td>
+                                <td>
+                                    <button type="button" class="edit-session-btn" title="Edit Session">
+                                        <i class="fas fa-edit" style="color: green;"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button type="button" class="download-session-btn" title="Download CSV">
+                                        <i class="fas fa-download" style="color: blue;"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button type="button" class="delete-session-btn" title="Delete Session">
+                                        <i class="fas fa-trash" style="color: red;"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        {% endfor %}
+            <div class="edit-course-container">
+                <form class="edit-course-form" action="/edit_course" method="POST" style="display: none;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                    <input type="hidden" name="course-id" value="{{ course.id }}">
+                    <label for="form-course-name-{{ course.id }}" class="edit-course-label">Edit Course Name:</label>
+                    <input type="text" id="form-course-name-{{ course.id }}" name="course_name"
+                        placeholder="Course Name" value="{{ course.name }}" required>
+                    <button type="submit" title="Save" class="save-course-btn">
+                        <i class="fas fa-save"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button type="button" class="edit-course-btn" title="Edit Name">
+                Edit Name
+            </button>
+            <button type="button" class="new-session-btn" title="New Session">
+                New Session
+            </button>
+            <button type="button" class="close-edit-course-btn" title="Close" style="display: none;">
+                Cancel
+            </button>
+        </div>
     </div>
-    <button type="button" id="create-course-btn">Create Course</button>
-    {% include 'modals/create_course_modal.html' %}
-    {% include 'modals/course_info_modal.html' %}
-    {% include 'modals/create_session_modal.html' %}
-    {% include 'modals/edit_course_info_modal.html' %}
+    {% endfor %}
+</div>
+<button type="button" id="create-course-btn">Create Course</button>
+{% include 'modals/create_course_modal.html' %}
+{% include 'modals/create_session_modal.html' %}
+{% include 'modals/edit_session_modal.html' %}
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
