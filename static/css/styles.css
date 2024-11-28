@@ -1,4 +1,4 @@
-/* General styling*/
+/* General styling */
 main {
     display: flex;
     flex-direction: column;
@@ -6,17 +6,15 @@ main {
     justify-content: center;
 }
 
-nav {
+nav, footer {
     background-color: #005035;
     color: white;
 }
 
 footer {
-    background-color: #005035;
-    color: white;
     text-align: center;
-    padding: 10px;
-    position: relative;
+    padding: 10px 0;
+    position: fixed;
     bottom: 0;
     width: 100%;
 }
@@ -25,99 +23,120 @@ footer {
     color: white !important;
 }
 
-.navbar {
-    background-color: #005035; 
-}
-
-.navbar .nav-link {
-    color: #ffffff !important; 
-}
-
 .navbar .nav-link:hover {
-    color: #dddddd !important; 
+    color: #dddddd !important;
 }
 
 .navbar-brand {
-    color: #ffffff !important; 
+    color: #ffffff !important;
     font-weight: bold;
 }
 
-
-
-footer {
-    background-color: #005035;
-    color: white;
-    text-align: center;
-    padding: 10px 0;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-}
-
-/* Refining the login portion of the index page */
-#login_email_label, #login_email_input{
-    display: flex;
-    margin: 0%;
-}
-
-#login_password_label, #login_password_input{
-    display: flex;
-    margin: 0%;
-}
-
-#login_btn{
-    display: flex;
-    justify-content: center;
-    margin: auto;
-    margin-top: -10%;
-    margin-bottom: 10%;
-}
-
-
-
-/* Refining the register portion of the index page */
-
-#rf_email, #rf_password, #rf_firstName,#rf_lastName{
-    display: flex;
-    margin: 0%;
-
-}
-
-#rf_register_btn{
-    display: flex;
-    justify-content: center;
-    margin: auto;
-    margin-bottom: 10%;
-}
-
-/* Horizontal content alignment */
 .horizontal_main_content {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 4rem;
-    padding-top: 3rem;
     flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
 }
 
-/* Card container styles */
-.vertical_cards {
+.course-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.course-card .card-header {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: left;
-    transition: filter 0.3s ease;
+    margin-bottom: 15px;
+}
+
+.course-card .card-body {
+    flex-grow: 1;
+}
+
+.course-card .card-body p {
+    margin: 5px 0;
+}
+
+.course-card .attendance-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.course-card .attendance-form input[type="text"] {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.course-card .attendance-form button {
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.course-card .attendance-form button:hover {
+    background-color: #0056b3;
+}
+
+.btn-primary {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 20px;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.session-symbol {
+    font-size: 1.5rem;
+}
+
+.session-symbol.green {
+    color: green;
+}
+
+.session-symbol.yellow {
+    color: yellow;
+}
+
+.session-symbol.grey {
+    color: grey;
 }
 
 /* Style for general cards */
 .card_style {
     border-radius: 0.75rem;
     background-color: #F5F5F5; 
-    width: 22rem;
-    height: 6rem;
+    width: 44rem;
+    height: auto;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     margin: 1rem;
@@ -135,93 +154,121 @@ footer {
     color: #333; 
 }
 
-/* Style for course status cards */
-.card_course_status_style {
-    border-radius: 0.75rem;
-    background-color: #F5F5F5;
-    width: 18rem;
-    height: 26rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    margin: 1rem;
-    gap: 1rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.card_course_status_style:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-.card_course_status_style p {
-    color: #333;
-}
-
-.card_course_status_style button {
-    height: 3rem;
-    width: 80%; 
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.75rem;
-    background-color: #005035;
-    color: white;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.2s, box-shadow 0.2s;
-}
-
-.card_course_status_style button:hover {
-    background-color: #004026; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); 
-}
-
-
-/* Style for blur */
-#blurOverlay {
-    display: none;
-    position: fixed;
-    justify-content: center;
-    top: 0;
-    left: 0;
+.course-card .session-table-container {
     width: 100%;
-    height: 100%;
-    backdrop-filter: blur(1px); 
-    background-color: rgba(0, 0, 0, 0.08); 
-    z-index: 500; 
+    overflow-x: auto;
+    margin-top: 10px;
 }
 
-/* Popover styling */
-#popoverCard {
-    display: none;
-    position: absolute;
-    top: 10rem;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1000; 
-    background-color: #F5F5F5;
-    padding: 1.5rem;
-    border-radius: 1rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    width: 18rem;
+.ongoing-session-symbol {
+    font-size: 1.5rem;
+    color: green;
 }
 
-#popoverCard button {
-    margin-top: 1rem;
-    padding: 0.5rem 1rem;
-    background-color: #005035;
-    color: white;
-    border: none;
-    border-radius: 0.5rem;
+/* Style for general cards */
+.course-card .session-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.course-card .session-table th,
+.course-card .session-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center; /* Center the content */
+}
+
+.course-card .session-table th {
+    background-color: #f2f2f2;
+}
+
+.course-card .edit-course-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.course-card .edit-course-form {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.course-card .edit-course-form input[type="text"] {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.course-card .edit-course-label {
+    margin-right: 10px;
+}
+
+.course-card .card-footer {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Button Styles */
+button {
     cursor: pointer;
+    border: none;
+    padding: 10px 15px;
+    margin: 5px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1px;
+}
+
+button i {
+    margin: 0; /* Remove margin */
+}
+
+.edit-session-btn, .edit-course-btn, .new-session-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.edit-session-btn:hover, .edit-course-btn:hover, .new-session-btn:hover {
+    background-color: #0056b3;
+}
+
+.download-session-btn {
+    background-color: blue;
+    color: white;
+}
+
+.download-session-btn:hover {
+    background-color: darkblue;
+}
+
+.delete-session-btn, .delete-course-btn, .close-edit-course-btn {
+    background-color: red;
+    color: white;
+}
+
+.delete-session-btn:hover, .delete-course-btn:hover, .close-edit-course-btn:hover {
+    background-color: darkred;
+}
+
+.save-course-btn {
+    background: none;
+    border: none;
+    color: #28a745;
+    cursor: pointer;
+    font-size: 1.5rem;
+}
+
+.save-course-btn:hover {
+    color: #218838;
 }
 
 /* Modal styles */
 .modal {
-    display: none;
     position: fixed;
     z-index: 1000;
     left: 0;
@@ -229,20 +276,25 @@ footer {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgb(0,0,0);
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .modal-content {
     background-color: #fefefe;
-    margin: 10% auto;
     padding: 20px;
     border: 1px solid #888;
-    width: 50%; /* Adjust the width as needed */
     max-width: 600px; /* Set a maximum width */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a shadow for better visibility */
-    border-radius: 8px; /* Optional: Add rounded corners */
+    width: auto; /* Ensure it doesn't exceed the viewport width */
+    max-height: 90%;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
 }
+
+
 
 .close {
     color: #aaa;
@@ -256,4 +308,93 @@ footer {
     color: black;
     text-decoration: none;
     cursor: pointer;
+}
+
+/* Flash message styles */
+.flash-messages {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    width: 300px;
+}
+
+.flash-message {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.flash-message.success {
+    background-color: #28a745;
+}
+
+.flash-message.error {
+    background-color: #dc3545;
+}
+
+.flash-message.warning {
+    background-color: #ffc107;
+    color: black;
+}
+
+.flash-message.info {
+    background-color: #17a2b8;
+}
+
+.edit-course-btn i,
+.delete-course-btn i {
+    margin-left: 8px; /* Adjust the value as needed */
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.button-container .new-session-btn {
+    margin-left: auto;
+}
+
+.button-container button {
+    border-radius: 8px; /* Adjust the value as needed */
+}
+
+.button-container button i {
+    margin-left: 8px; /* Adjust the value as needed for spacing between text and icon */
+}
+
+.session-table th,
+.session-table td {
+    text-align: center; /* Center the content horizontally */
+    vertical-align: middle; /* Center the content vertically */
+    padding: 10px; /* Adjust the padding as needed */
+    color: #000; /* Adjust the color as needed */
+}
+
+.session-table button {
+    background: none; /* Remove default button background */
+    border: none; /* Remove default button border */
+    cursor: pointer; /* Change cursor to pointer */
+    padding: 0; /* Remove default padding */
+}
+
+.session-table button i {
+    font-size: 1.2em; /* Adjust icon size as needed */
+    color: #000; /* Change icon color */
+}
+
+.hidden {
+    display: none;
+}
+
+#splash-message {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.2em;
+    color: #333;
 }
