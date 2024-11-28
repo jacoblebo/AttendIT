@@ -269,7 +269,6 @@ button i {
 
 /* Modal styles */
 .modal {
-    display: none;
     position: fixed;
     z-index: 1000;
     left: 0;
@@ -278,15 +277,24 @@ button i {
     height: 100%;
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .modal-content {
     background-color: #fefefe;
-    margin: 10% auto;
     padding: 20px;
     border: 1px solid #888;
-    width: 50%;
+    max-width: 600px; /* Set a maximum width */
+    width: auto; /* Ensure it doesn't exceed the viewport width */
+    max-height: 90%;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
 }
+
+
 
 .close {
     color: #aaa;

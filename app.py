@@ -24,32 +24,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
 db = SQLAlchemy()
 
-import uuid
 
-@app.after_request
-def set_security_headers(response):
-    nonce = uuid.uuid4().hex
-    response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'DENY'
-    response.headers['X-XSS-Protection'] = '1; mode=block'
-    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
-    # response.headers['Content-Security-Policy'] = (
-    #     f"default-src 'self'; "
-    #     f"script-src 'self' https://code.jquery.com https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js 'nonce-{nonce}'; "
-    #     f"style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css 'nonce-{nonce}'; "
-    #     f"img-src 'self' data:; "
-    #     f"style-src-attr 'self' 'nonce-{nonce}'; "
-    #     f"script-src-attr 'self' 'nonce-{nonce}'; "
-    #     f"script-src-elem 'self' https://code.jquery.com https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js 'nonce-{nonce}'; "
-    #     f"style-src-elem 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css 'nonce-{nonce}'; "
-    #     f"font-src 'self' https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/webfonts/;"
-    # )
-    return response
-
-@app.context_processor
-def inject_nonce():
-    nonce = uuid.uuid4().hex
-    return dict(nonce=nonce)
 @app.context_processor
 def inject_nonce():
     nonce = uuid.uuid4().hex
@@ -129,7 +104,7 @@ with app.app_context():
             db.session.commit()
             print("Test student created with email: ", test_student_email)
     else:
-        print("Database already exists, happy bug hunting!")
+        print("Database already exists!")
 
 @app.before_request
 def method_override():
@@ -140,7 +115,6 @@ def method_override():
 
 @app.route('/', methods=['GET'])
 def index():
-    print("Current time:", datetime.now())
     #if the user is logged in, send them to the correct dashboard, else send them to the login page
     if 'user' in session:
         if session['user']['role'] == 0:
@@ -308,15 +282,6 @@ def instructor_dashboard():
                 'attendees': attendees,
                 'percent_present': percent_present
             })
-        
-        # Find the index of the next/current session
-        now = datetime.now()
-        next_session_index = next((i for i, s in enumerate(class_sessions) if datetime.strptime(s.session_start_date, "%Y-%m-%d %H:%M:%S") >= now), len(class_sessions))
-
-        # Select the next/current session, the 3 after that, and the 4 before that
-        start_index = max(0, next_session_index - 4)
-        end_index = min(len(class_sessions), next_session_index + 4)
-        course.recent_sessions = course.sessions[start_index:end_index]
 
     return render_template('instructor_dashboard.html', user=session['user'], courses=courses)
 
@@ -412,23 +377,20 @@ def course_info(course_id):
 @app.route('/create_session', methods=['POST'])
 def create_session():
     if 'user' not in session or session['user']['role'] != 1:
-        flash('Unauthorized', 'error')
-        return redirect(url_for('index'))
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
 
     course_id = request.form.get('course_id')
     start_date = request.form.get('start_date')
     end_date = request.form.get('end_date')
 
     if not course_id or not start_date or not end_date:
-        flash('All fields are required', 'error')
-        return redirect(url_for('instructor_dashboard'))
+        return jsonify({'success': False, 'message': 'All fields are required'}), 400
 
     session_start_datetime = datetime.strptime(start_date, "%Y-%m-%dT%H:%M")
     session_end_datetime = datetime.strptime(end_date, "%Y-%m-%dT%H:%M")
 
     if session_end_datetime <= session_start_datetime:
-        flash('Session end date and time must be after the start date and time', 'error')
-        return redirect(url_for('instructor_dashboard'))
+        return jsonify({'success': False, 'message': 'Session end date and time must be after the start date and time'}), 400
 
     bypass_code = generate_unique_join_code()
 
@@ -442,27 +404,32 @@ def create_session():
 
     db.session.add(new_class_session)
     db.session.commit()
-    flash('Session created successfully', 'success')
-    return redirect(url_for('instructor_dashboard'))
+    return jsonify({'success': True, 'message': 'Session created successfully'})
 
 @app.route('/edit_session/<string:session_id>', methods=['POST'])
 def edit_session(session_id):
     if 'user' not in session or session['user']['role'] != 1:
-        flash('Unauthorized', 'error')
         return jsonify({'success': False, 'message': 'Unauthorized'}), 403
 
     session_record = ClassSession.query.get(session_id)
     if not session_record:
-        flash('Session not found', 'error')
         return jsonify({'success': False, 'message': 'Session not found'}), 404
 
-    data = request.get_json()
-    new_start_date = data['start_date']
-    new_end_date = data['end_date']
-    session_record.session_start_date = new_start_date
-    session_record.session_end_date = new_end_date
+    new_start_date = request.form.get('start_date')
+    new_end_date = request.form.get('end_date')
+
+    if not new_start_date or not new_end_date:
+        return jsonify({'success': False, 'message': 'All fields are required'}), 400
+
+    session_start_datetime = datetime.strptime(new_start_date, "%Y-%m-%dT%H:%M")
+    session_end_datetime = datetime.strptime(new_end_date, "%Y-%m-%dT%H:%M")
+
+    if session_end_datetime <= session_start_datetime:
+        return jsonify({'success': False, 'message': 'Session end date and time must be after the start date and time'}), 400
+
+    session_record.session_start_date = session_start_datetime.strftime("%Y-%m-%d %H:%M:%S")
+    session_record.session_end_date = session_end_datetime.strftime("%Y-%m-%d %H:%M:%S")
     db.session.commit()
-    flash('Session updated successfully', 'success')
     return jsonify({'success': True, 'message': 'Session updated successfully'})
 
 @app.route('/download_attendance/<string:session_id>', methods=['GET'])
@@ -560,26 +527,23 @@ def view_enrollment(course_id):
 @app.route('/enroll_course', methods=['POST'])
 def enroll_course():
     if 'user' not in session or session['user']['role'] != 0:
-        return redirect(url_for('index'))
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
 
     join_code = request.form['join_code']
     student_id = session['user']['id']
 
     course = Class.query.filter_by(join_code=join_code).first()
     if not course:
-        flash('Invalid join code', 'error')
-        return redirect(url_for('student_dashboard'))
+        return jsonify({'success': False, 'message': 'Invalid join code'}), 400
 
     existing_enrollment = Enrollment.query.filter_by(student_id=student_id, class_id=course.id).first()
     if existing_enrollment:
-        flash('You are already enrolled in this course', 'error')
-        return redirect(url_for('student_dashboard'))
+        return jsonify({'success': False, 'message': 'You are already enrolled in this course'}), 400
 
     new_enrollment = Enrollment(student_id=student_id, class_id=course.id)
     db.session.add(new_enrollment)
     db.session.commit()
-    flash('Enrolled in course successfully', 'success')
-    return redirect(url_for('student_dashboard'))
+    return jsonify({'success': True, 'message': 'Enrolled in course successfully'})
 
 @app.route('/mark_attendance/<string:course_id>', methods=['POST'])
 def mark_attendance(course_id):

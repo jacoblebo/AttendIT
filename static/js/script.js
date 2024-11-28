@@ -1,6 +1,3 @@
-console.log("Script loaded");
-
-// Utility functions
 const getElement = (id) => document.getElementById(id);
 
 const setupModal = (modalId, openBtnId, closeSelector) => {
@@ -261,18 +258,49 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.download-session-btn').forEach(button => {
         button.addEventListener('click', () => handleDownloadSession(button.getAttribute('data-session-id')));
     });
-
+    
     document.querySelectorAll('.modal .close').forEach(span => {
         span.addEventListener('click', function() {
             this.closest('.modal').style.display = 'none';
         });
     });
-
+    
     setupModal('enroll-course-modal', 'enroll-course-btn', '.close');
-
+    
     handleFormSubmit('enroll-course-form', async (formData) => {
         try {
             const response = await fetch('/enroll_course', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': formData.get('csrf_token')
+                },
+                body: new URLSearchParams(formData)
+            });
+    
+            const contentType = response.headers.get('content-type');
+            let data;
+            if (contentType?.includes('application/json')) {
+                data = await response.json();
+            } else {
+                data = { success: false, message: 'Unexpected response format' };
+            }
+    
+            if (data.success) {
+                alert('Enrolled in course successfully');
+                location.reload();
+            } else {
+                alert('Failed to enroll in course: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while enrolling in the course.');
+        }
+    });
+
+    handleFormSubmit('create-session-form', async (formData) => {
+        try {
+            const response = await fetch('/create_session', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -288,6 +316,93 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 data = { success: false, message: 'Unexpected response format' };
             }
+
+            if (data.success) {
+                alert('Session created successfully');
+                location.reload();
+            } else {
+                alert('Failed to create session: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while creating the session.');
+        }
+    });
+
+    handleFormSubmit('edit-session-form', async (formData) => {
+        const sessionId = formData.get('session_id');
+        try {
+            const response = await fetch(`/edit_session/${sessionId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': formData.get('csrf_token')
+                },
+                body: new URLSearchParams(formData)
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('Session updated successfully');
+                location.reload();
+            } else {
+                alert('Failed to update session: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while updating the session.');
+        }
+    });
+    
+    document.querySelectorAll('.attendance-form').forEach(form => {
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const courseId = this.getAttribute('data-course-id');
+            const bypassCode = this.querySelector('input[name="bypass_code"]').value;
+    
+            try {
+                const response = await fetch(`/mark_attendance/${courseId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
+                    },
+                    body: JSON.stringify({ bypass_code: bypassCode })
+                });
+    
+                const data = await response.json();
+                if (data.success) {
+                    alert('Attendance marked successfully');
+                    location.reload();
+                } else {
+                    alert('Failed to mark attendance: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while marking attendance.');
+            }
+        });
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup modal for enrolling in a course
+    setupModal('enroll-course-modal', 'enroll-course-btn', '.close');
+
+    // Handle form submission for enrolling in a course
+    handleFormSubmit('enroll-course-form', async (formData) => {
+        try {
+            const response = await fetch('/enroll_course', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': formData.get('csrf_token')
+                },
+                body: new URLSearchParams(formData)
+            });
+
+            const data = await response.json();
 
             if (data.success) {
                 alert('Enrolled in course successfully');
@@ -329,7 +444,4 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
-    
-    
 });

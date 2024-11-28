@@ -1,22 +1,10 @@
-
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.css">
-
-
-
 <div id="create-session-modal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
         <h2>Create Session</h2>
-        <form id="create-session-form" action="/create_session" method="POST">
-        <form action="/create_session" method="POST" id="create-session-form" autocomplete="off">
-            <input type="hidden" id="course-id" name="course_id">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <form id="create-session-form" action="/create_session" method="POST" autocomplete="off">
             <input type="hidden" id="new-session-course-id" name="course_id">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <label for="session-start-date">Start Date:</label>
             <input type="datetime-local" id="session-start-date" name="start_date" required><br><br>
             <label for="session-end-date">End Date:</label>
@@ -25,22 +13,3 @@
         </form>
     </div>
 </div>
-
-<script>
-    $(document).ready(function() {
-        $("#session-start-date").datepicker({
-            dateFormat: "mm-dd-yy",
-            controlType: "select"
-        });
-
-        $("#session-start-time").timepicker({
-            timeFormat: "hh:mm TT",
-            controlType: "select"
-        });
-
-        $("#session-end-time").timepicker({
-            timeFormat: "hh:mm TT",
-            controlType: "select"
-        });
-    });
-</script>
