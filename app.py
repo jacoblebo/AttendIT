@@ -234,9 +234,15 @@ def generate_unique_join_code():
         existing_code = Class.query.filter_by(join_code=join_code).first()
         if not existing_code:
             return join_code
+        
+# -------------------------------------------------------------------- CREATE NEW COURSE (INSTRUCTOR METHOD) ------------------------------------------------------------------------------------
+
+# Course creation method
+# Used when an instructor (who's logged in) attempts to create a new course from the instructor dashboard
 
 @app.route('/create_course', methods=['POST'])
 def create_course():
+    # If the user is not in the current session (for some reason), or the user is not an instructor (for some reason), kick back to the login page
     if 'user' not in session or session['user']['role'] != 1:
         return redirect(url_for('login'))
 
@@ -255,10 +261,14 @@ def create_course():
         professor_id=professor_id,
         join_code=join_code
     )
+
     db.session.add(new_course)
     db.session.commit()
+
     flash('Course created successfully', 'success')
     return redirect(url_for('instructor_dashboard'))
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------
 
 @app.route('/course_info/<int:course_id>', methods=['GET'])
 def course_info(course_id):
