@@ -31,6 +31,8 @@ Welcome to AttendIT
     
 """
 
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
+
 # Imports
 from flask import Flask, render_template, request, redirect, session, flash, url_for, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
@@ -55,15 +57,16 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
-
 db = SQLAlchemy()
-
 
 @app.context_processor
 def inject_nonce():
     nonce = uuid.uuid4().hex
     return dict(nonce=nonce)
 
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
+
+# Database model
 class User(db.Model):
     __tablename__ = 'Users'
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()))
@@ -103,6 +106,7 @@ class ClassSession(db.Model):
 
 db.init_app(app)
 
+# Initialize database
 with app.app_context():
     if not os.path.exists('AttendIT.db'):
         db.create_all()
@@ -147,6 +151,8 @@ def method_override():
         if method in ['PUT', 'DELETE']:
             request.environ['REQUEST_METHOD'] = method
 
+# -------------------------------------------------------------------- DEFAULT ROUTE ------------------------------------------------------------------------------------
+
 @app.route('/', methods=['GET'])
 def index():
     #if the user is logged in, send them to the correct dashboard, else send them to the login page
@@ -156,6 +162,8 @@ def index():
         elif session['user']['role'] == 1:
             return redirect(url_for('instructor_dashboard'))
     return render_template('index.html')
+
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -193,6 +201,8 @@ def login():
         flash('Email not found', 'error')
         return redirect(url_for('index'))
     
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
+
 @app.route('/register', methods=['POST'])
 def register():
     first_name = request.form['firstName']
@@ -231,7 +241,8 @@ def register():
     flash('Registration successful', 'success')
     return redirect(url_for('index'))
     
-# Student Dashboard
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
+
 @app.route('/student_dashboard', methods=['GET'])
 def student_dashboard():
     if 'user' not in session or session['user']['role'] != 0:
@@ -269,6 +280,8 @@ def student_dashboard():
 
     return render_template('student_dashboard.html', user=session['user'], courses=courses)
 
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
+
 @app.route('/student_course_info/<string:course_id>', methods=['GET'])
 def student_course_info(course_id):
     if 'user' not in session or session['user']['role'] != 0:
@@ -286,6 +299,8 @@ def student_course_info(course_id):
         'next_session': next_session_info
     }
     return jsonify(course_info)
+
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
 
 @app.route('/instructor_dashboard', methods=['GET'])
 def instructor_dashboard():
@@ -319,6 +334,8 @@ def instructor_dashboard():
 
     return render_template('instructor_dashboard.html', user=session['user'], courses=courses)
 
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
+
 @app.route('/view_attendance/<session_id>')
 def view_attendance(session_id):
     # Fetch attendance data for the session
@@ -332,6 +349,7 @@ def view_attendance(session_id):
         })
     return jsonify(success=True, attendance=attendance_list)
 
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
 # Logout Route
 @app.route('/logout')
 def logout():
@@ -339,6 +357,7 @@ def logout():
     flash('You have been logged out', 'info')
     return redirect(url_for('index'))
 
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
 # Error Page
 @app.route('/error', methods=['GET'])
 def error():
@@ -388,7 +407,7 @@ def create_course():
     flash('Course created successfully', 'success')
     return redirect(url_for('instructor_dashboard'))
 
-# --------------------------------------------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
 
 @app.route('/course_info/<int:course_id>', methods=['GET'])
 def course_info(course_id):
@@ -416,6 +435,8 @@ def course_info(course_id):
         'next_session': next_session_info
     }
     return jsonify(course_info)
+
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
 
 @app.route('/create_session', methods=['POST'])
 def create_session():
@@ -449,6 +470,8 @@ def create_session():
     db.session.commit()
     return jsonify({'success': True, 'message': 'Session created successfully'})
 
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
+
 @app.route('/edit_session/<string:session_id>', methods=['POST'])
 def edit_session(session_id):
     if 'user' not in session or session['user']['role'] != 1:
@@ -475,6 +498,8 @@ def edit_session(session_id):
     db.session.commit()
     return jsonify({'success': True, 'message': 'Session updated successfully'})
 
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
+
 @app.route('/download_attendance/<string:session_id>', methods=['GET'])
 def download_attendance(session_id):
     session_record = ClassSession.query.get(session_id)
@@ -495,6 +520,7 @@ def download_attendance(session_id):
     response.headers["Content-Type"] = "text/csv"
     return response
 
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
 
 @app.route('/delete_session/<string:session_id>', methods=['DELETE'])
 def delete_session(session_id):
@@ -510,6 +536,8 @@ def delete_session(session_id):
     db.session.commit()
     flash('Session deleted successfully', 'success')
     return jsonify({'success': True, 'message': 'Session deleted successfully'})
+
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
 
 @app.route('/edit_course', methods=['POST'])
 def edit_course():
@@ -529,6 +557,8 @@ def edit_course():
 
     flash('Course updated successfully', 'success')
     return redirect(url_for('instructor_dashboard'))
+
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
 
 @app.route('/delete_class/<string:class_id>', methods=['DELETE'])
 def delete_class(class_id):
@@ -553,6 +583,8 @@ def delete_class(class_id):
     flash('Course deleted successfully', 'success')
     return jsonify({'success': True, 'message': 'Course deleted successfully'})
 
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
+
 @app.route('/view_enrollment/<string:course_id>', methods=['GET'])
 def view_enrollment(course_id):
     if 'user' not in session or session['user']['role'] != 1:
@@ -565,6 +597,8 @@ def view_enrollment(course_id):
         students.append({'firstName': student.firstName, 'lastName': student.lastName, 'email': student.email})
 
     return jsonify({'success': True, 'students': students})
+
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
 
 #student methods
 @app.route('/enroll_course', methods=['POST'])
@@ -587,6 +621,8 @@ def enroll_course():
     db.session.add(new_enrollment)
     db.session.commit()
     return jsonify({'success': True, 'message': 'Enrolled in course successfully'})
+
+# -------------------------------------------------------------------- XXX ------------------------------------------------------------------------------------
 
 @app.route('/mark_attendance/<string:course_id>', methods=['POST'])
 def mark_attendance(course_id):
