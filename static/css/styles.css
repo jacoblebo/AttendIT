@@ -129,6 +129,10 @@ footer {
     color: grey;
 }
 
+#page-title{
+    margin: 20px;
+}
+
 /* Style for general cards */
 .card_style {
     border-radius: 0.75rem;
