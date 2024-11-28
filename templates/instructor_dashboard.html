@@ -8,13 +8,24 @@
     <div class="card_style course-card" data-course-id="{{ course.id }}">
         <div class="card-header">
             <h2>{{ course.name }}</h2>
-            <button type="button" class="delete-course-btn" title="Delete Course">
-                <i class="fas fa-trash"></i>
+            <button type="button" class="edit-course-btn" data-course-id="{{ course.id }}" title="Edit Course">
+                Edit Course <i class="fas fa-edit"></i>
+            </button>
+            <button type="button" class="delete-course-btn" data-course-id="{{ course.id }}" title="Delete Course">
+                Delete Course <i class="fas fa-trash"></i>
             </button>
         </div>
         <div class="card-body">
             <p><strong>Join Code:</strong> {{ course.join_code }}</p>
             <p><strong>Enrollment:</strong> {{ course.enrollment }}</p>
+            <div class="button-container">
+                <button type="button" class="view-enrollment-btn" data-course-id="{{ course.id }}" title="View Enrollment">
+                    View Enrollment <i class="fas fa-users"></i>
+                </button>
+                <button type="button" class="new-session-btn" data-course-id="{{ course.id }}" title="New Session">
+                    Create Session <i class="fas fa-plus"></i>
+                </button>
+            </div>
             <div class="session-table-container">
                 <table class="session-table">
                     <thead>
@@ -23,110 +34,59 @@
                             <th>Code</th>
                             <th>#</th>
                             <th>%</th>
-                            <th>Edit</th>
-                            <th>Download</th>
-                            <th>Delete</th>
+                            <th><i class="fas fa-eye"></i></th>
+                            <th><i class="fas fa-edit"></i></th>
+                            <th><i class="fas fa-download"></i></th>
+                            <th><i class="fas fa-trash"></i></th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for session in course.sessions %}
                         <tr data-session-id="{{ session.id }}">
-                            <script>console.log("Session ID: {{ session.id }}")</script>
                             <td>{{ session.session_date }}</td>
                             <td>{{ session.bypass_code }}</td>
                             <td>{{ session.attendees }}</td>
                             <td>{{ session.percent_present }}%</td>
                             <td>
-                                <button type="button" class="edit-session-btn" data-session-id="{{ session.id }}"
-                                    title="Edit Session">
-                                    <i class="fas fa-edit" style="color: green;"></i>
+                                <button type="button" class="view-attendance-btn" data-session-id="{{ session.id }}" title="View Attendance">
+                                    <i class="fas fa-eye"></i>
                                 </button>
                             </td>
                             <td>
-                                <button type="button" class="download-session-btn"
-                                    data-session-id="{{ session.id }}" title="Download CSV">
-                                    <i class="fas fa-download" style="color: blue;"></i>
+                                <input type="hidden" class="session-start-date" value="{{ session.start_date }}">
+                                <input type="hidden" class="session-end-date" value="{{ session.end_date }}">
+                                <button type="button" class="edit-session-btn" data-session-id="{{ session.id }}" title="Edit Session">
+                                    <i class="fas fa-edit"></i>
                                 </button>
                             </td>
                             <td>
-                                <button type="button" class="delete-session-btn" data-session-id="{{ session.id }}"
-                                    title="Delete Session">
-                                    <i class="fas fa-trash" style="color: red;"></i>
+                                <button type="button" class="download-session-btn" data-session-id="{{ session.id }}" title="Download CSV">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </td>
+                            <td>
+                                <button type="button" class="delete-session-btn" data-session-id="{{ session.id }}" title="Delete Session">
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-                {% if course.sessions|length > 8 %}
-                <button type="button" class="toggle-sessions-btn" data-course-id="{{ course.id }}">Show All
-                    Sessions</button>
-                {% endif %}
-                <div class="all-sessions" style="display: none;">
-                    <table class="session-table">
-                        <tbody>
-                            {% for session in course.sessions %}
-                            <tr data-session-id="{{ session.id }}">
-                                <script>console.log("Session ID: {{ session.id }}")</script>
-                                <td>{{ session.session_date }}</td>
-                                <td>{{ session.bypass_code }}</td>
-                                <td>{{ session.attendees }}</td>
-                                <td>{{ session.percent_present }}%</td>
-                                <td>
-                                    <button type="button" class="edit-session-btn" data-session-id="{{ session.id }}"
-                                        title="Edit Session">
-                                        <i class="fas fa-edit" style="color: green;"></i>
-                                    </button>
-                                </td>
-                                <td>
-                                    <button type="button" class="download-session-btn"
-                                        data-session-id="{{ session.id }}" title="Download CSV">
-                                        <i class="fas fa-download" style="color: blue;"></i>
-                                    </button>
-                                </td>
-                                <td>
-                                    <button type="button" class="delete-session-btn" data-session-id="{{ session.id }}"
-                                        title="Delete Session">
-                                        <i class="fas fa-trash" style="color: red;"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
             </div>
-            <div class="edit-course-container">
-                <form class="edit-course-form" action="/edit_course" method="POST" style="display: none;">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-                    <input type="hidden" name="course-id" value="{{ course.id }}">
-                    <label for="form-course-name-{{ course.id }}" class="edit-course-label">Edit Course Name:</label>
-                    <input type="text" id="form-course-name-{{ course.id }}" name="course_name"
-                        placeholder="Course Name" value="{{ course.name }}" required>
-                    <button type="submit" title="Save" class="save-course-btn">
-                        <i class="fas fa-save"></i>
-                    </button>
-                </form>
-            </div>
-        </div>
-        <div class="card-footer">
-            <button type="button" class="edit-course-btn" title="Edit Name">
-                Edit Name
-            </button>
-            <button type="button" class="new-session-btn" title="New Session">
-                New Session
-            </button>
-            <button type="button" class="close-edit-course-btn" title="Close" style="display: none;">
-                Cancel
-            </button>
         </div>
     </div>
     {% endfor %}
+    
 </div>
-<button type="button" id="create-course-btn">Create Course</button>
+<button id="create-course-btn" class="btn btn-primary">Create Course</button>
+<!-- Modals -->
 {% include 'modals/create_course_modal.html' %}
+{% include 'modals/edit_course_modal.html' %}
 {% include 'modals/create_session_modal.html' %}
 {% include 'modals/edit_session_modal.html' %}
+{% include 'modals/view_enrollment_modal.html' %}
+{% include 'modals/view_attendance_modal.html' %}
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>

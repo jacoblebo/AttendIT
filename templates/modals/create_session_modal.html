@@ -2,16 +2,14 @@
     <div class="modal-content">
         <span class="close">&times;</span>
         <h2>Create Session</h2>
-        <form action="/create_session" method="POST" id="create-session-form">
-            <input type="hidden" id="course-id" name="course_id">
+        <form id="create-session-form" action="/create_session" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <input type="hidden" id="new-session-course-id" name="course_id">
             <label for="session-start-date">Start Date:</label>
-            <input type="date" id="session-start-date" name="session_start_date" required><br><br>
-            <label for="session-start-time">Start Time:</label>
-            <input type="time" id="session-start-time" name="session_start_time" required><br><br>
-            <label for="session-end-time">End Time:</label>
-            <input type="time" id="session-end-time" name="session_end_time" required><br><br>
-            <button type="submit">Create Session</button>
+            <input type="datetime-local" id="session-start-date" name="start_date" required><br><br>
+            <label for="session-end-date">End Date:</label>
+            <input type="datetime-local" id="session-end-date" name="end_date" required><br><br>
+            <button type="submit">Create</button>
         </form>
     </div>
 </div>
