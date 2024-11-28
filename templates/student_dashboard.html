@@ -1,4 +1,3 @@
-<!-- /templates/student_dashboard.html -->
 {% extends 'layout.html' %}
 
 {% block content %}
@@ -7,14 +6,35 @@
     <div class="horizontal_main_content">
         {% for course in courses %}
             <div class="card_style course-card" data-course-id="{{ course.id }}">
-                <p>{{ course.name }}</p>
+                <div class="card-header">
+                    <h2>{{ course.name }}</h2>
+                    {% if course.ongoing_session %}
+                        {% if course.ongoing_session.attendance_marked %}
+                            <span class="session-symbol green">&#x1F7E2;</span> <!-- Green circle symbol -->
+                        {% else %}
+                            <span class="session-symbol yellow">&#x1F7E1;</span> <!-- Yellow circle symbol -->
+                        {% endif %}
+                    {% else %}
+                        <span class="session-symbol grey">&#x26AA;</span> <!-- Grey circle symbol -->
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if course.next_session %}
+                        <p><strong>Next Session Start:</strong> {{ course.next_session.start_date }}</p>
+                        <p><strong>Next Session End:</strong> {{ course.next_session.end_date }}</p>
+                        <form class="attendance-form" data-course-id="{{ course.id }}">
+                            <input type="text" name="bypass_code" placeholder="Enter Bypass Code" required>
+                            <button type="submit">Mark Attendance</button>
+                        </form>
+                    {% else %}
+                        <p>No upcoming sessions</p>
+                    {% endif %}
+                </div>
             </div>
         {% endfor %}
     </div>
-    <button id="enroll-course-btn">Enroll in a Course</button>
+    <button id="enroll-course-btn" class="btn btn-primary">Enroll in a Course</button>
     {% include 'modals/enroll_course_modal.html' %}
-    {% include 'modals/student_course_info_modal.html' %}
-    {% include 'card_popover.html' %}
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
