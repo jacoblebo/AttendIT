@@ -1,3 +1,37 @@
+"""
+
+ITSC 4155 - Group 7 - AttendIT - Version 1.0
+
+Group Members:
+    Jacob Lebo
+    Nick Brezinski
+    Jonathan Miller
+    Eva Gunn
+    Taylor Powell
+
+Project Description:
+    AttendIT is a web based attendance taking application intended for use in academic settings.
+    Its purpose is to streamline attendance taking by providing for a mostly hands-off experience.
+    Ideally, location services would be utilized, but passcodes are provided.
+
+Version Description:
+    Version 1.0 provides core functionalities of user registration, course creation, attendance marking via passcodes, and basic information displays.
+
+Future Directions:
+    Future directions include the addition of location services utilities, university-specific user authentication, and course population based on official student class schedules.
+
+Packages utilized:
+    Flask 2.0.3
+    Flask-SQLAlchemy 2.5.1
+    Flask-WTF 1.0.0
+    bcrypt 3.2.0
+    python-dotenv 0.19.2
+
+Welcome to AttendIT
+    
+"""
+
+# Imports
 from flask import Flask, render_template, request, redirect, session, flash, url_for, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 import bcrypt
@@ -10,11 +44,11 @@ import random
 import string
 import uuid
 
+# Initialize Flask
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY')
+app.secret_key = os.getenv('SECRET_KEY') # Must have secret key in '.env' file
 csrf.init_app(app)
 
-# Configure the database
 # Configure the database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///AttendIT.db'
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
