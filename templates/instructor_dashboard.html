@@ -29,24 +29,28 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for session in course.recent_sessions %}
-                        <tr>
+                        {% for session in course.sessions %}
+                        <tr data-session-id="{{ session.id }}">
+                            <script>console.log("Session ID: {{ session.id }}")</script>
                             <td>{{ session.session_date }}</td>
                             <td>{{ session.bypass_code }}</td>
                             <td>{{ session.attendees }}</td>
                             <td>{{ session.percent_present }}%</td>
                             <td>
-                                <button type="button" class="edit-session-btn" title="Edit Session">
+                                <button type="button" class="edit-session-btn" data-session-id="{{ session.id }}"
+                                    title="Edit Session">
                                     <i class="fas fa-edit" style="color: green;"></i>
                                 </button>
                             </td>
                             <td>
-                                <button type="button" class="download-session-btn" title="Download CSV">
+                                <button type="button" class="download-session-btn"
+                                    data-session-id="{{ session.id }}" title="Download CSV">
                                     <i class="fas fa-download" style="color: blue;"></i>
                                 </button>
                             </td>
                             <td>
-                                <button type="button" class="delete-session-btn" title="Delete Session">
+                                <button type="button" class="delete-session-btn" data-session-id="{{ session.id }}"
+                                    title="Delete Session">
                                     <i class="fas fa-trash" style="color: red;"></i>
                                 </button>
                             </td>
@@ -62,23 +66,27 @@
                     <table class="session-table">
                         <tbody>
                             {% for session in course.sessions %}
-                            <tr>
+                            <tr data-session-id="{{ session.id }}">
+                                <script>console.log("Session ID: {{ session.id }}")</script>
                                 <td>{{ session.session_date }}</td>
                                 <td>{{ session.bypass_code }}</td>
                                 <td>{{ session.attendees }}</td>
                                 <td>{{ session.percent_present }}%</td>
                                 <td>
-                                    <button type="button" class="edit-session-btn" title="Edit Session">
+                                    <button type="button" class="edit-session-btn" data-session-id="{{ session.id }}"
+                                        title="Edit Session">
                                         <i class="fas fa-edit" style="color: green;"></i>
                                     </button>
                                 </td>
                                 <td>
-                                    <button type="button" class="download-session-btn" title="Download CSV">
+                                    <button type="button" class="download-session-btn"
+                                        data-session-id="{{ session.id }}" title="Download CSV">
                                         <i class="fas fa-download" style="color: blue;"></i>
                                     </button>
                                 </td>
                                 <td>
-                                    <button type="button" class="delete-session-btn" title="Delete Session">
+                                    <button type="button" class="delete-session-btn" data-session-id="{{ session.id }}"
+                                        title="Delete Session">
                                         <i class="fas fa-trash" style="color: red;"></i>
                                     </button>
                                 </td>

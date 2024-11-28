@@ -253,6 +253,7 @@ def instructor_dashboard():
             else:
                 session_date = f"{start_datetime.strftime('%I:%M %p %m/%d/%y')} - {end_datetime.strftime('%I:%M %p %m/%d/%y')}"
             course.sessions.append({
+                'id': class_session.id,
                 'session_date': session_date,
                 'bypass_code': class_session.bypass_code,
                 'attendees': attendees,

@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const endDate = formData.get("end_date");
     
         try {
-            const response = await fetch(`/edit_session/${sessionId}`, {
+            const response = await fetch(`/edit_session/${String(sessionId)}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -221,9 +221,18 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
     
+    document.querySelectorAll(".download-session-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+            const sessionId = button.getAttribute("data-session-id");
+            console.log("Download Session ID:", sessionId); // Debugging line
+            window.location.href = `/download_attendance/${sessionId}`;
+        });
+    });
+    
     document.querySelectorAll(".edit-session-btn").forEach((button) => {
         button.addEventListener("click", () => {
-            const sessionId = button.closest("tr").getAttribute("data-session-id");
+            const sessionId = button.getAttribute("data-session-id");
+            console.log("Edit Session ID:", sessionId); // Debugging line
             const sessionStartDate = button.closest("tr").querySelector(".session-start-date").textContent;
             const sessionEndDate = button.closest("tr").querySelector(".session-end-date").textContent;
     
@@ -240,7 +249,8 @@ document.addEventListener("DOMContentLoaded", () => {
     
     document.querySelectorAll(".delete-session-btn").forEach((button) => {
         button.addEventListener("click", async () => {
-            const sessionId = button.closest("tr").getAttribute("data-session-id");
+            const sessionId = button.getAttribute("data-session-id");
+            console.log("Delete Session ID:", sessionId); // Debugging line
             if (confirm("Are you sure you want to delete this session and all its associated records?")) {
                 try {
                     const response = await fetch(`/delete_session/${sessionId}`, {
