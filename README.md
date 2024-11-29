@@ -7,12 +7,20 @@ After successful completion of the app, the task of taking attendance would beco
 
 
 ### Setup Instructions
-  - Open Gitbash
-  - git clone {Project}
-  - Navigate to proejct directory using CD command
-  - python -m install flask
-  - python -m flask run
-
+  - Open Git bash
+  - git clone https://github.com/jacoblebo/AttendIT
+  - Navigate to the project directory using the cd command
+  - Start a virtual environment
+    - Linux/MacOS:
+      - python -m venv .venv
+      - source venv/bin/activate
+    - Windows:
+      - Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+      - python -m venv .venv
+      - .\venv\Scripts\Activate
+  - Install requirements.txt files
+    - pip install -r requirements.txt
+  - Start the application: flask run
 ### Usage Details
   - User can login  with mobile device or desktop to confirm attendance
   - Instructor can automatically compile attendance
