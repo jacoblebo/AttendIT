@@ -258,7 +258,7 @@ button {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 1px;
+    border-radius: 8px;
 }
 
 button i {
@@ -270,6 +270,7 @@ button i {
     color: white;
     margin-left: 10px;
     font-size: 0.95em;
+    border-radius: 8px;
 }
 
 .edit-session-btn:hover, .edit-course-btn:hover, .new-session-btn:hover {
@@ -290,6 +291,7 @@ button i {
     color: white;
     margin-left: 5px;
     font-size: 0.95em;
+    border-radius: 8px;
 }
 
 .delete-session-btn:hover, .delete-course-btn:hover, .close-edit-course-btn:hover {
@@ -313,6 +315,7 @@ button i {
     align-items: right;
     justify-content: right;
     border: 1px solid #888;
+    border-radius: 8px;
 }
 
 /* Modal styles */
