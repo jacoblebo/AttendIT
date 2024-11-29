@@ -106,7 +106,7 @@ class ClassSession(db.Model):
 
 db.init_app(app)
 
-# Initial database population
+# Populate database with initial data
 with app.app_context():
     if not os.path.exists('AttendIT.db'):
         db.create_all()
