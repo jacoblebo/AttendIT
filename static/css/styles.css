@@ -143,9 +143,11 @@ footer {
 }
 
 #toggle-link{
-    margin: 20px;
-    align-items: center;
-    justify-content: center;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    align-items: right;
+    justify-content: right;
+    text-align: right;
 }
 
 #login-block{
@@ -303,8 +305,9 @@ button i {
 
 #toggle-forms-btn{
     margin: 10px;
-    align-items: center;
-    justify-content: center;
+    align-items: right;
+    justify-content: right;
+    border: 1px solid #888;
 }
 
 /* Modal styles */
