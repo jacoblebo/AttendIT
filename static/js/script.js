@@ -100,12 +100,12 @@ const toggleForms = () => {
     const toggleLink = getElement('toggle-link');
 
     if (loginForm.style.display === 'none') {
-        loginForm.style.display = 'block';
+        loginForm.style.display = 'flex';
         registerForm.style.display = 'none';
         toggleLink.innerHTML = "Don't have an account? <button type='button' onclick='toggleForms()'>Register</button>";
     } else {
         loginForm.style.display = 'none';
-        registerForm.style.display = 'block';
+        registerForm.style.display = 'flex';
         toggleLink.innerHTML = "Already have an account? <button type='button' onclick='toggleForms()'>Login</button>";
     }
 };
