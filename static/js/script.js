@@ -51,6 +51,7 @@ const handleAttendanceSubmit = async (formData) => {
 
     if (data?.success) {
         alert("Attendance marked successfully");
+        location.reload();
     } else {
         alert("Failed to mark attendance");
     }
@@ -435,6 +436,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = await response.json();
                 if (data.success) {
                     alert('Attendance marked successfully');
+                    location.reload();
                 } else {
                     alert('Failed to mark attendance: ' + data.message);
                 }
