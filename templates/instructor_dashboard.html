@@ -7,7 +7,7 @@
     {% for course in courses %}
     <div class="card_style course-card" data-course-id="{{ course.id }}">
         <div class="card-header">
-            <h2>{{ course.name }}</h2>
+            <h2 style="font-weight: bold;">{{ course.name }}</h2>
             <button type="button" class="edit-course-btn" data-course-id="{{ course.id }}" title="Edit Course">
                 Edit Course <i class="fas fa-edit"></i>
             </button>

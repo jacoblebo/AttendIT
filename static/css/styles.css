@@ -155,14 +155,15 @@ footer {
     justify-content: center;
     display: flex;
     flex-direction: column;
-    background-color: #c5c5c56c;
-    border-radius: 15px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
     padding: 10px 20px;
     transition: transform 0.2s;
     width: 750px;
     text-align: center;
     margin-top: 100px;
+    background-color: #f7f7f7;
+    border: 1px solid #ddd;
+    border-radius: 8px;
 }
 
 /* Style for general cards */
@@ -265,8 +266,10 @@ button i {
 }
 
 .edit-session-btn, .edit-course-btn, .new-session-btn {
-    background-color: #007bff;
+    background-color: #007bffb2;
     color: white;
+    margin-left: 10px;
+    font-size: 0.95em;
 }
 
 .edit-session-btn:hover, .edit-course-btn:hover, .new-session-btn:hover {
@@ -283,8 +286,10 @@ button i {
 }
 
 .delete-session-btn, .delete-course-btn, .close-edit-course-btn {
-    background-color: red;
+    background-color: rgba(255, 0, 0, 0.61);
     color: white;
+    margin-left: 5px;
+    font-size: 0.95em;
 }
 
 .delete-session-btn:hover, .delete-course-btn:hover, .close-edit-course-btn:hover {
