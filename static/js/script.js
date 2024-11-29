@@ -10,7 +10,7 @@ const setupModal = (modalId, openBtnId, closeSelector) => {
         return;
     }
 
-    openBtn.onclick = () => (modal.style.display = "block");
+    openBtn.onclick = () => (modal.style.display = "flex");
     closeBtn.onclick = () => (modal.style.display = "none");
     window.onclick = (event) => {
         if (event.target === modal) {
@@ -127,7 +127,7 @@ const handleViewEnrollment = async (courseId) => {
             listItem.textContent = 'No students enrolled in this course.';
             enrollmentList.appendChild(listItem);
         }
-        document.getElementById('view-enrollment-modal').style.display = 'block';
+        document.getElementById('view-enrollment-modal').style.display = 'flex';
     } else {
         alert('Error fetching enrollment data: ' + data.message);
     }
@@ -141,7 +141,7 @@ const handleViewAttendance = async (sessionId) => {
         
         if (!attendanceList) {
             console.error('attendanceList is null');
-            document.getElementById('view-attendance-modal').style.display = 'block';
+            document.getElementById('view-attendance-modal').style.display = 'flex';
             document.getElementById('view-attendance-modal').innerHTML = 'Nobody has registered for your course';
             return;
         }
@@ -157,7 +157,7 @@ const handleViewAttendance = async (sessionId) => {
                     attendanceList.appendChild(listItem);
                 });
             }
-            document.getElementById('view-attendance-modal').style.display = 'block';
+            document.getElementById('view-attendance-modal').style.display = 'flex';
         } else {
             alert('Error fetching attendance data: ' + data.message);
         }
@@ -172,7 +172,7 @@ const handleEditCourse = (button) => {
     const courseName = button.closest('.course-card').querySelector('h2').textContent;
     document.getElementById('course-id').value = courseId;
     document.getElementById('form-course-name').value = courseName;
-    document.getElementById('edit-course-modal').style.display = 'block';
+    document.getElementById('edit-course-modal').style.display = 'flex';
 };
 
 const handleEditSession = (button) => {
@@ -184,7 +184,7 @@ const handleEditSession = (button) => {
     document.getElementById('edit-session-start-date').value = startDate;
     document.getElementById('edit-session-end-date').value = endDate;
 
-    document.getElementById('edit-session-modal').style.display = 'block';
+    document.getElementById('edit-session-modal').style.display = 'flex';
 };
 
 const handleDownloadSession = (sessionId) => {
@@ -243,12 +243,12 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', () => {
             const courseId = button.getAttribute('data-course-id');
             document.getElementById('new-session-course-id').value = courseId;
-            document.getElementById('create-session-modal').style.display = 'block';
+            document.getElementById('create-session-modal').style.display = 'flex';
         });
     });
 
     document.getElementById('create-course-btn').addEventListener('click', () => {
-        document.getElementById('create-course-modal').style.display = 'block';
+        document.getElementById('create-course-modal').style.display = 'flex';
     });
 
     document.querySelectorAll('.delete-course-btn').forEach(button => {
