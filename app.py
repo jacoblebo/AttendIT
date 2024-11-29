@@ -64,6 +64,9 @@ def inject_nonce():
     nonce = uuid.uuid4().hex
     return dict(nonce=nonce)
 
+if not app.config.get('TESTING'):
+    csrf.init_app(app)
+
 # -------------------------------------------------------------------- DATABASE SETUP ------------------------------------------------------------------------------------
 
 # Database model
@@ -257,9 +260,22 @@ def student_dashboard():
     for course in courses:
         now = datetime.now()
         class_sessions = ClassSession.query.filter_by(class_id=course.id).order_by(ClassSession.session_start_date).all()
-        next_session = next((session for session in class_sessions if datetime.strptime(session.session_start_date, "%Y-%m-%d %H:%M:%S") >= now), None)
-        ongoing_session = next((session for session in class_sessions if datetime.strptime(session.session_start_date, "%Y-%m-%d %H:%M:%S") <= now <= datetime.strptime(session.session_end_date, "%Y-%m-%d %H:%M:%S")), None)
         
+        next_session = None
+        ongoing_session = None
+
+        for class_session in class_sessions:
+            session_start = datetime.strptime(class_session.session_start_date, "%Y-%m-%d %H:%M:%S")
+            session_end = datetime.strptime(class_session.session_end_date, "%Y-%m-%d %H:%M:%S")
+            
+            if session_start <= now <= session_end:
+                ongoing_session = class_session
+                next_session = class_session
+            elif session_start > now:
+                next_session = class_session
+
+        print(f"Course: {course.name}, Next Session: {next_session}, Ongoing Session: {ongoing_session}")
+
         if next_session:
             start_datetime = datetime.strptime(next_session.session_start_date, "%Y-%m-%d %H:%M:%S")
             end_datetime = datetime.strptime(next_session.session_end_date, "%Y-%m-%d %H:%M:%S")
@@ -408,7 +424,7 @@ def create_course():
 
 # ------------------------------------------------- Course Info (Instructor) route
 
-@app.route('/course_info/<int:course_id>', methods=['GET'])
+@app.route('/course_info/<string:course_id>', methods=['GET'])
 def course_info(course_id):
     print(f"Fetching course info for course_id: {course_id}")
     course = Class.query.get(course_id)
@@ -467,6 +483,7 @@ def create_session():
 
     db.session.add(new_class_session)
     db.session.commit()
+    print(f"New session created: {new_class_session}")
     return jsonify({'success': True, 'message': 'Session created successfully'})
 
 # ------------------------------------------------- Edit Session (Instructor) route
