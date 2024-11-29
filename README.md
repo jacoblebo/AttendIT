@@ -29,6 +29,13 @@ After successful completion of the app, the task of taking attendance would beco
 ### Usage Details
   - User can login  with mobile device or desktop to confirm attendance
   - Instructor can automatically compile attendance
+  - The current instructor account has the following credentials:
+    - Username: admin@uncc.edu
+    - Password: 123
+ - The default student account has the following credentials:
+   - Username: test@uncc.edu
+   - Password: 123
+ - You CANNOT create another professor account, that action can only be preformed by a DBA. This design decision was made so that we didn't need to worry about figuring out who was a professor or not. Assumedly, if this platform gets adoption, we can request a list of emails and then run an Update-Select statement.
 
 ### Team Progress
   - Created Wireframe
