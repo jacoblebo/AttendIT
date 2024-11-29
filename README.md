@@ -20,6 +20,11 @@ After successful completion of the app, the task of taking attendance would beco
       - .\venv\Scripts\Activate
   - Install requirements.txt files
     - pip install -r requirements.txt
+  - Create SECRET_KEY .env variable
+    - This can be any string.
+    - Create a file called .env
+    - Make the contents of the file this line:
+      - SECRET_KEY = '1DDE168B0DC710D629E3AA2C1F0ABA39'
   - Start the application: flask run
 ### Usage Details
   - User can login  with mobile device or desktop to confirm attendance
