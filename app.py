@@ -172,7 +172,7 @@ def index():
 
 @app.route('/login', methods=['POST'])
 def login():
-    print("Form data received:", request.form)
+    print("(Login) Form data received:", request.form)
 
     email = request.form['email']
     password = request.form['password']
